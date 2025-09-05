@@ -178,8 +178,9 @@ export default function Login() {
                   <div className="text-center">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Don't have an account? </span>
                     <Link href="/register">
-                      <span className="text-sm text-[#D8AC35] hover:text-[#B8941F] hover:underline transition-colors duration-150 cursor-pointer font-medium">
+                      <span className="relative text-sm text-[#D8AC35] hover:text-[#B8941F] transition-colors duration-150 cursor-pointer font-medium group">
                         Create account
+                        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D8AC35] group-hover:w-full transition-all duration-300 ease-out"></span>
                       </span>
                     </Link>
                   </div>
@@ -221,8 +222,9 @@ export default function Login() {
                 <Lock className="w-4 h-4" />
                 <span>Questions about your account? </span>
                 <Link href="/support">
-                  <span className="text-[#D8AC35] hover:text-[#B8941F] hover:underline transition-colors duration-150 cursor-pointer">
+                  <span className="relative text-[#D8AC35] hover:text-[#B8941F] transition-colors duration-150 cursor-pointer group">
                     Contact support
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D8AC35] group-hover:w-full transition-all duration-300 ease-out"></span>
                   </span>
                 </Link>
               </div>
