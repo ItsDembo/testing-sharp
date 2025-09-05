@@ -112,52 +112,23 @@ export default function Register() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-32">
         {/* Page Header */}
         <div className="text-center mb-24">
-          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#D8AC35]/10 border border-[#D8AC35]/20 mb-8">
-            <div className="w-2 h-2 rounded-full bg-[#D8AC35]"></div>
-            <span className="text-sm font-semibold text-[#D8AC35] uppercase tracking-[0.2em]">CREATE ACCOUNT</span>
-          </div>
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-black mb-6 text-gray-900 dark:text-white" style={{ fontFamily: "'Saira Condensed', sans-serif", fontStyle: 'italic', transform: 'skew(-5deg)' }}>
             CREATE YOUR ACCOUNT
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed mb-8">
             Start building with real-time betting intelligence.
           </p>
+          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#D8AC35]/10 border border-[#D8AC35]/20">
+            <div className="w-2 h-2 rounded-full bg-[#D8AC35]"></div>
+            <span className="text-sm font-semibold text-[#D8AC35] uppercase tracking-[0.2em]">CREATE ACCOUNT</span>
+          </div>
         </div>
 
         {/* Main Content */}
         <div className="space-y-20">
           <div>
-            <div className="grid lg:grid-cols-2 gap-7 max-w-[1600px] mx-auto">
-              
-              {/* Left Column - Value Props */}
-              <div className="bg-gray-50/80 dark:bg-gray-900/80 rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 px-8 py-7 h-full flex flex-col">
-                <h3 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Join the revolution</h3>
-                <div className="space-y-6 flex-1">
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 rounded-full bg-[#D8AC35]/20 flex items-center justify-center flex-shrink-0">
-                      <div className="w-2 h-2 rounded-full bg-[#D8AC35]"></div>
-                    </div>
-                    <span className="text-gray-900 dark:text-white text-lg leading-relaxed">Precision over luck</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 rounded-full bg-[#D8AC35]/20 flex items-center justify-center flex-shrink-0">
-                      <div className="w-2 h-2 rounded-full bg-[#D8AC35]"></div>
-                    </div>
-                    <span className="text-gray-900 dark:text-white text-lg leading-relaxed">Data-driven strategy</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 rounded-full bg-[#D8AC35]/20 flex items-center justify-center flex-shrink-0">
-                      <div className="w-2 h-2 rounded-full bg-[#D8AC35]"></div>
-                    </div>
-                    <span className="text-gray-900 dark:text-white text-lg leading-relaxed">Built for serious traders</span>
-                  </div>
-                  <div className="mt-8">
-                    <AuthTerminal />
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Column - Form Card */}
+            {/* Centered Create Account Form */}
+            <div className="max-w-md mx-auto">
               <div className="bg-gray-50/80 dark:bg-gray-900/80 rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 px-8 py-7">
                 <h3 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Create Account</h3>
 
@@ -270,8 +241,13 @@ export default function Register() {
               </div>
             </div>
 
+            {/* Terminal Animation Below Form */}
+            <div className="max-w-md mx-auto mt-16">
+              <AuthTerminal />
+            </div>
+
             {/* Badges */}
-            <div className="flex flex-wrap items-center justify-center gap-4 mb-16 mt-20 max-w-[1600px] mx-auto">
+            <div className="flex flex-wrap items-center justify-center gap-4 mb-16 mt-20">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100/50 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-800/50">
                 <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                 <span className="text-sm font-medium text-blue-700 dark:text-blue-400 uppercase tracking-wider">Data-Driven</span>
