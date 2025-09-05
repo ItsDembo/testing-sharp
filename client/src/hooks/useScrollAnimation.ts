@@ -166,8 +166,8 @@ export function useStaggeredScrollAnimation(count: number, staggerDelay: number 
             });
           },
           {
-            threshold: 0.2,
-            rootMargin: "0px 0px -20% 0px"
+            threshold: 0.1,
+            rootMargin: "0px 0px 100px 0px"
           }
         );
 
