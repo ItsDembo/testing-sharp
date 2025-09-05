@@ -90,18 +90,15 @@ export function useStaggeredScrollAnimation(count: number, staggerDelay: number 
     // Reset scroll tracking
     hasUserScrolled.current = false;
     
-    // Simple scroll detection with delay
+    // Immediate scroll detection after navigation delay
     const handleScroll = () => {
-      if (scrollTimer.current) clearTimeout(scrollTimer.current);
-      scrollTimer.current = setTimeout(() => {
-        hasUserScrolled.current = true;
-      }, 300);
+      hasUserScrolled.current = true;
     };
     
-    // Add scroll listener after a short delay to avoid navigation scrolling
+    // Add scroll listener after navigation auto-scroll settles
     const initTimer = setTimeout(() => {
       window.addEventListener('scroll', handleScroll, { passive: true });
-    }, 600);
+    }, 200);
     
     return () => {
       clearTimeout(initTimer);
