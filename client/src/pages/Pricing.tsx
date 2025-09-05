@@ -152,9 +152,10 @@ export default function Pricing() {
                     setTimeout(() => sweep.remove(), 300);
                   }
                 }}
-                className="w-full py-4 px-8 rounded-full bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-2 border-transparent hover:border-[#D8AC35] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#D8AC35]/20 font-medium text-base relative overflow-hidden group mt-6">
+                className="w-full py-4 px-8 rounded-full bg-gradient-to-r from-[#D8AC35]/80 to-[#D8AC35]/60 text-white border-2 border-[#D8AC35]/60 hover:from-[#D8AC35]/90 hover:to-[#D8AC35]/70 hover:border-[#D8AC35]/80 hover:shadow-lg hover:shadow-[#D8AC35]/20 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#D8AC35]/20 font-bold text-base relative overflow-hidden group mt-6">
+                {/* Background shimmer effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out"></div>
                 <span className="relative z-10">Choose Pro</span>
-                <div className="absolute inset-0 border-2 border-[#D8AC35] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </button>
             </Link>
           </div>
@@ -242,9 +243,10 @@ export default function Pricing() {
                     setTimeout(() => sweep.remove(), 300);
                   }
                 }}
-                className="w-full py-4 px-8 rounded-full bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-2 border-transparent hover:border-[#D8AC35] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#D8AC35]/20 font-medium text-base relative overflow-hidden group mt-6">
+                className="w-full py-4 px-8 rounded-full bg-gradient-to-r from-[#D8AC35]/80 to-[#D8AC35]/60 text-white border-2 border-[#D8AC35]/60 hover:from-[#D8AC35]/90 hover:to-[#D8AC35]/70 hover:border-[#D8AC35]/80 hover:shadow-lg hover:shadow-[#D8AC35]/20 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#D8AC35]/20 font-bold text-base relative overflow-hidden group mt-6">
+                {/* Background shimmer effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out"></div>
                 <span className="relative z-10">Choose Unlimited</span>
-                <div className="absolute inset-0 border-2 border-[#D8AC35] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </button>
             </Link>
           </div>
