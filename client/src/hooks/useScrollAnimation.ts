@@ -81,12 +81,37 @@ export function useStaggeredScrollAnimation(count: number, staggerDelay: number 
   const refs = useRef<(HTMLElement | null)[]>([]);
   const observers = useRef<IntersectionObserver[]>([]);
   const timeouts = useRef<NodeJS.Timeout[]>([]);
+  const hasUserScrolled = useRef(false);
+  const navigationDelay = useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
     refs.current = refs.current.slice(0, count);
     
+    // Reset user scroll tracking on mount
+    hasUserScrolled.current = false;
+    
+    // Track user scrolling to differentiate from programmatic navigation scrolling
+    const handleUserScroll = () => {
+      hasUserScrolled.current = true;
+      window.removeEventListener('scroll', handleUserScroll);
+    };
+    
+    // Wait for navigation scroll to settle before enabling user scroll tracking
+    navigationDelay.current = setTimeout(() => {
+      window.addEventListener('scroll', handleUserScroll, { passive: true });
+    }, 500); // Give time for navigation auto-scroll to complete
+    
     // Cleanup function to reset all animations and observers
     return () => {
+      // Clear navigation delay timeout
+      if (navigationDelay.current) {
+        clearTimeout(navigationDelay.current);
+        navigationDelay.current = null;
+      }
+      
+      // Remove scroll listener
+      window.removeEventListener('scroll', handleUserScroll);
+      
       // Clear all timeouts
       timeouts.current.forEach(timeout => clearTimeout(timeout));
       timeouts.current = [];
@@ -135,7 +160,7 @@ export function useStaggeredScrollAnimation(count: number, staggerDelay: number 
         const observer = new IntersectionObserver(
           (entries) => {
             entries.forEach((entry) => {
-              if (entry.isIntersecting) {
+              if (entry.isIntersecting && hasUserScrolled.current) {
                 const delay = index * staggerDelay;
                 const timeout = setTimeout(() => {
                   if (element) { // Check element still exists
@@ -159,24 +184,9 @@ export function useStaggeredScrollAnimation(count: number, staggerDelay: number 
         // Store observer for cleanup
         observers.current[index] = observer;
 
-        // Handle elements already in view on load
-        const rect = element.getBoundingClientRect();
-        const isInView = rect.top < window.innerHeight && rect.bottom > 0;
-        
-        if (isInView) {
-          const delay = index * staggerDelay + 100;
-          const timeout = setTimeout(() => {
-            if (element) { // Check element still exists
-              element.style.opacity = '1';
-              element.style.transform = 'translateY(0px)';
-              element.classList.add('in-view');
-            }
-          }, delay);
-          
-          timeouts.current[index] = timeout;
-        } else {
-          observer.observe(element);
-        }
+        // Don't animate elements already in view on page load
+        // They will only animate when user scrolls manually
+        observer.observe(element);
       }
     };
   };
