@@ -79,9 +79,31 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(options:
 
 export function useStaggeredScrollAnimation(count: number, staggerDelay: number = 120) {
   const refs = useRef<(HTMLElement | null)[]>([]);
+  const observers = useRef<IntersectionObserver[]>([]);
+  const timeouts = useRef<NodeJS.Timeout[]>([]);
   
   useEffect(() => {
     refs.current = refs.current.slice(0, count);
+    
+    // Cleanup function to reset all animations and observers
+    return () => {
+      // Clear all timeouts
+      timeouts.current.forEach(timeout => clearTimeout(timeout));
+      timeouts.current = [];
+      
+      // Disconnect all observers
+      observers.current.forEach(observer => observer.disconnect());
+      observers.current = [];
+      
+      // Reset all elements to initial state
+      refs.current.forEach(element => {
+        if (element) {
+          element.style.opacity = '0';
+          element.style.transform = 'translateY(16px)';
+          element.classList.remove('in-view');
+        }
+      });
+    };
   }, [count]);
 
   const createRef = (index: number) => {
@@ -95,7 +117,12 @@ export function useStaggeredScrollAnimation(count: number, staggerDelay: number 
       if (element) {
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         
+        // Always reset element to initial state first
+        element.classList.remove('in-view');
+        
         if (prefersReducedMotion) {
+          element.style.opacity = '1';
+          element.style.transform = 'translateY(0px)';
           element.classList.add('in-view');
           return;
         }
@@ -110,12 +137,15 @@ export function useStaggeredScrollAnimation(count: number, staggerDelay: number 
             entries.forEach((entry) => {
               if (entry.isIntersecting) {
                 const delay = index * staggerDelay;
-                setTimeout(() => {
-                  element.style.opacity = '1';
-                  element.style.transform = 'translateY(0px)';
-                  element.classList.add('in-view');
+                const timeout = setTimeout(() => {
+                  if (element) { // Check element still exists
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0px)';
+                    element.classList.add('in-view');
+                  }
                 }, delay);
                 
+                timeouts.current[index] = timeout;
                 observer.unobserve(element);
               }
             });
@@ -126,17 +156,24 @@ export function useStaggeredScrollAnimation(count: number, staggerDelay: number 
           }
         );
 
+        // Store observer for cleanup
+        observers.current[index] = observer;
+
         // Handle elements already in view on load
         const rect = element.getBoundingClientRect();
         const isInView = rect.top < window.innerHeight && rect.bottom > 0;
         
         if (isInView) {
           const delay = index * staggerDelay + 100;
-          setTimeout(() => {
-            element.style.opacity = '1';
-            element.style.transform = 'translateY(0px)';
-            element.classList.add('in-view');
+          const timeout = setTimeout(() => {
+            if (element) { // Check element still exists
+              element.style.opacity = '1';
+              element.style.transform = 'translateY(0px)';
+              element.classList.add('in-view');
+            }
           }, delay);
+          
+          timeouts.current[index] = timeout;
         } else {
           observer.observe(element);
         }
