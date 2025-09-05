@@ -11,6 +11,20 @@ import SSOButtons from "@/components/auth/SSOButtons";
 import PasswordInput from "@/components/auth/PasswordInput";
 
 export default function Register() {
+  // Parallax effect
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+    const xPercent = (clientX / innerWidth) * 100;
+    const yPercent = (clientY / innerHeight) * 100;
+    const translateX = (xPercent - 50) * 0.05; // Very subtle movement
+    const translateY = (yPercent - 50) * 0.05;
+    
+    const element = document.querySelector('.parallax-bg') as HTMLElement;
+    if (element) {
+      element.style.transform = `translate(${translateX}px, ${translateY}px)`;
+    }
+  };
   const [, setLocation] = useLocation();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -108,7 +122,17 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-[#D8AC35]/20 dark:from-black dark:via-gray-900 dark:to-[#D8AC35]/10">
+    <div 
+      className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-[#D8AC35]/20 dark:from-black dark:via-gray-900 dark:to-[#D8AC35]/10 relative overflow-hidden"
+      onMouseMove={handleMouseMove}
+    >
+      {/* Parallax Background Grid */}
+      <div className="parallax-bg absolute inset-0 opacity-5 dark:opacity-10 pointer-events-none transition-transform duration-100 ease-out">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `linear-gradient(90deg, #D8AC35 1px, transparent 1px), linear-gradient(#D8AC35 1px, transparent 1px)`,
+          backgroundSize: '20px 20px'
+        }}></div>
+      </div>
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-20">
         {/* Page Header */}
         <div className="text-center mb-16">
@@ -209,8 +233,10 @@ export default function Register() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full h-12 text-base bg-[#D8AC35] hover:bg-[#B8941F] text-black font-semibold transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="relative w-full h-12 text-base bg-[#D8AC35] hover:bg-[#B8941F] text-black font-semibold transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group"
                   >
+                    {/* Shimmer effect */}
+                    <div className="absolute inset-0 -top-full group-hover:top-full bg-gradient-to-r from-transparent via-white/30 to-transparent transform transition-all duration-600 ease-out"></div>
                     {isLoading ? (
                       <>
                         <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin mr-2"></div>
@@ -225,8 +251,9 @@ export default function Register() {
                   <div className="text-center">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Already have an account? </span>
                     <Link href="/login">
-                      <span className="text-sm text-[#D8AC35] hover:text-[#B8941F] hover:underline transition-colors duration-150 cursor-pointer font-medium">
+                      <span className="relative text-sm text-[#D8AC35] hover:text-[#B8941F] transition-colors duration-150 cursor-pointer font-medium group">
                         Sign in
+                        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D8AC35] group-hover:w-full transition-all duration-300 ease-out"></span>
                       </span>
                     </Link>
                   </div>
