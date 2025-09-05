@@ -242,12 +242,12 @@ export default function Register() {
             </div>
 
             {/* Terminal Animation Below Form */}
-            <div className="max-w-md mx-auto mt-16">
+            <div className="max-w-md mx-auto mt-12">
               <AuthTerminal />
             </div>
 
             {/* Badges */}
-            <div className="flex flex-wrap items-center justify-center gap-4 mb-16 mt-20">
+            <div className="flex flex-wrap items-center justify-center gap-4 mb-8 mt-12">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100/50 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-800/50">
                 <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                 <span className="text-sm font-medium text-blue-700 dark:text-blue-400 uppercase tracking-wider">Data-Driven</span>
@@ -263,7 +263,7 @@ export default function Register() {
             </div>
 
             {/* Support Strip */}
-            <div className="text-center max-w-[1600px] mx-auto mt-12">
+            <div className="text-center max-w-[1600px] mx-auto mt-8">
               <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                 <Lock className="w-4 h-4" />
                 <span>Questions about your account? </span>
