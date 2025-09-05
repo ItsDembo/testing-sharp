@@ -130,7 +130,6 @@ export default function Register() {
             {/* Centered Create Account Form */}
             <div className="max-w-md mx-auto">
               <div className="bg-gray-50/80 dark:bg-gray-900/80 rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 px-8 py-7">
-                <h3 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Create Account</h3>
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
