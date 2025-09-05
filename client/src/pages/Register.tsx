@@ -118,7 +118,11 @@ export default function Register() {
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed mb-8">
             Start building with real-time betting intelligence.
           </p>
-          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#D8AC35]/10 border border-[#D8AC35]/20">
+        </div>
+
+        {/* Gold Pill Badge */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#D8AC35]/10 border border-[#D8AC35]/20 mb-8">
             <div className="w-2 h-2 rounded-full bg-[#D8AC35]"></div>
             <span className="text-sm font-semibold text-[#D8AC35] uppercase tracking-[0.2em]">CREATE ACCOUNT</span>
           </div>
