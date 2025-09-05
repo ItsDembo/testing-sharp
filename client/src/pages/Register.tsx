@@ -133,7 +133,7 @@ export default function Register() {
                 BUILD YOUR EDGE
               </h2>
               <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
-                Create your account to start leveraging data-driven betting and stay one step ahead of the books.
+                Create your account to start leveraging data-driven betting and beat the books.
               </p>
             </div>
 
