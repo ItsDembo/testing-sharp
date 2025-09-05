@@ -56,14 +56,14 @@ export function PricingToggle({ onToggle, className }: PricingToggleProps) {
         <div className={cn(
           "flex items-center gap-2 px-4 py-3 h-[48px] rounded-full border-2 text-sm font-bold transition-all duration-300 relative overflow-hidden group",
           isAnnual 
-            ? "border-green-400 bg-green-400/10 text-green-300 shadow-lg shadow-green-400/10 opacity-100" 
+            ? "border-green-500 bg-green-500/15 text-green-700 dark:text-green-300 shadow-lg shadow-green-500/15 opacity-100" 
             : "border-transparent bg-transparent text-transparent opacity-0"
         )}>
           {/* Shimmer effect on hover only */}
           {isAnnual && (
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-green-400/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-green-500/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out"></div>
           )}
-          <div className="w-2 h-2 rounded-full bg-green-400 relative z-10"></div>
+          <div className="w-2 h-2 rounded-full bg-green-500 relative z-10"></div>
           <span className="relative z-10">Save 2 months</span>
         </div>
       </div>
