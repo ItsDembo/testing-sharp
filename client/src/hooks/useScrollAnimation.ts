@@ -145,7 +145,7 @@ export function useStaggeredScrollAnimation(count: number, staggerDelay: number 
         // Initialize element in hidden state
         element.style.opacity = '0';
         element.style.transform = 'translateY(16px)';
-        element.style.transition = 'opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
+        element.style.transition = 'opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1), transform 1.2s cubic-bezier(0.22, 1, 0.36, 1)';
 
         const observer = new IntersectionObserver(
           (entries) => {
@@ -166,8 +166,8 @@ export function useStaggeredScrollAnimation(count: number, staggerDelay: number 
             });
           },
           {
-            threshold: 0.1,
-            rootMargin: "0px 0px 10px 0px"
+            threshold: 0.2,
+            rootMargin: "0px 0px -10px 0px"
           }
         );
 
