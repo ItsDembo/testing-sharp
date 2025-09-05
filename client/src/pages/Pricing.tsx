@@ -255,13 +255,16 @@ export default function Pricing() {
           <div className="text-center mb-8">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="flex items-center justify-center mx-auto px-6 py-3 rounded-full bg-white/50 dark:bg-gray-900/50 border border-gray-200/50 dark:border-gray-700/50 text-gray-900 dark:text-white hover:text-[#D8AC35] dark:hover:text-[#D8AC35] hover:border-[#D8AC35]/50 transition-all duration-200"
+              className="flex items-center justify-center mx-auto px-8 py-4 rounded-full bg-gradient-to-r from-[#D8AC35]/20 to-[#D8AC35]/10 dark:from-[#D8AC35]/25 dark:to-[#D8AC35]/15 border-2 border-[#D8AC35]/40 text-gray-900 dark:text-white hover:bg-gradient-to-r hover:from-[#D8AC35]/30 hover:to-[#D8AC35]/20 hover:border-[#D8AC35]/60 hover:shadow-lg hover:shadow-[#D8AC35]/20 transition-all duration-300 group relative overflow-hidden"
             >
-              <span className="text-sm font-semibold mr-3">Compare features</span>
+              {/* Background shimmer effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out"></div>
+              
+              <span className="text-base font-bold mr-3 text-[#D8AC35] relative z-10">Compare Features</span>
               {isExpanded ? (
-                <ChevronUp className="h-4 w-4 text-gray-500" />
+                <ChevronUp className="h-5 w-5 text-[#D8AC35] relative z-10" />
               ) : (
-                <ChevronDown className="h-4 w-4 text-gray-500" />
+                <ChevronDown className="h-5 w-5 text-[#D8AC35] relative z-10" />
               )}
             </button>
           </div>

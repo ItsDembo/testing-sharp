@@ -8,6 +8,8 @@ interface UseScrollAnimationOptions {
 
 export function useScrollAnimation<T extends HTMLElement = HTMLElement>(options: UseScrollAnimationOptions = {}) {
   const ref = useRef<T>(null);
+  const hasUserScrolled = useRef(false);
+  const scrollTimer = useRef<NodeJS.Timeout | null>(null);
   const {
     threshold = 0.2,
     rootMargin = "0px 0px -20% 0px",
@@ -18,10 +20,16 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(options:
     const element = ref.current;
     if (!element) return;
 
+    // Reset scroll tracking and animation state
+    hasUserScrolled.current = false;
+    element.classList.remove('in-view');
+
     // Check for reduced motion preference
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     
     if (prefersReducedMotion) {
+      element.style.opacity = '1';
+      element.style.transform = 'translateY(0px)';
       element.classList.add('in-view');
       return;
     }
@@ -31,15 +39,27 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(options:
     element.style.transform = 'translateY(16px)';
     element.style.transition = 'opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)';
 
+    // Track user scrolling to differentiate from programmatic navigation scrolling
+    const handleScroll = () => {
+      hasUserScrolled.current = true;
+    };
+
+    // Add scroll listener after navigation auto-scroll settles
+    const initTimer = setTimeout(() => {
+      window.addEventListener('scroll', handleScroll, { passive: true });
+    }, 200);
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
+          if (entry.isIntersecting && hasUserScrolled.current) {
             // Apply delay if specified
             setTimeout(() => {
-              element.style.opacity = '1';
-              element.style.transform = 'translateY(0px)';
-              element.classList.add('in-view');
+              if (element) {
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0px)';
+                element.classList.add('in-view');
+              }
             }, delay);
             
             // Disconnect observer after animation
@@ -53,23 +73,22 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(options:
       }
     );
 
-    // Handle elements already in view on load
-    const rect = element.getBoundingClientRect();
-    const isInView = rect.top < window.innerHeight && rect.bottom > 0;
-    
-    if (isInView) {
-      setTimeout(() => {
-        element.style.opacity = '1';
-        element.style.transform = 'translateY(0px)';
-        element.classList.add('in-view');
-      }, delay + 100); // Small delay to avoid harsh pop
-    } else {
-      observer.observe(element);
-    }
+    // Don't animate elements already in view on page load
+    // They will only animate when user scrolls manually
+    observer.observe(element);
 
     return () => {
+      clearTimeout(initTimer);
+      if (scrollTimer.current) clearTimeout(scrollTimer.current);
+      window.removeEventListener('scroll', handleScroll);
       if (observer) {
         observer.disconnect();
+      }
+      // Reset element state on cleanup
+      if (element) {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(16px)';
+        element.classList.remove('in-view');
       }
     };
   }, [threshold, rootMargin, delay]);
