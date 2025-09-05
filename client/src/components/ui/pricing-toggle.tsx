@@ -17,28 +17,37 @@ export function PricingToggle({ onToggle, className }: PricingToggleProps) {
   return (
     <div className={cn("flex items-center justify-center relative", className)}>
       {/* Segmented Pill Toggle - Centered */}
-      <div className="bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-full p-1 flex w-48 relative border border-gray-200/50 dark:border-gray-700/50 focus-within:ring-2 focus-within:ring-[#D8AC35]/20">
+      <div className="bg-gradient-to-r from-[#D8AC35]/20 to-[#D8AC35]/10 dark:from-[#D8AC35]/25 dark:to-[#D8AC35]/15 backdrop-blur-sm rounded-full p-1 flex w-48 relative border-2 border-[#D8AC35]/40 focus-within:ring-2 focus-within:ring-[#D8AC35]/20 group overflow-hidden">
+        {/* Background shimmer effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out"></div>
+        
         <button
           onClick={() => handleToggle(false)}
           className={cn(
-            "flex-1 py-2.5 px-4 text-sm font-medium rounded-full transition-all duration-300 z-10 relative focus:outline-none",
+            "flex-1 py-2.5 px-4 text-sm font-bold rounded-full transition-all duration-300 z-10 relative focus:outline-none group overflow-hidden",
             !isAnnual 
-              ? "bg-white dark:bg-gray-900 shadow-sm text-gray-900 dark:text-white border border-gray-200/20 dark:border-gray-700/20" 
-              : "text-gray-500 dark:text-gray-500 hover:text-gray-900 dark:hover:text-gray-200"
+              ? "bg-gradient-to-r from-[#D8AC35]/80 to-[#D8AC35]/60 shadow-lg shadow-[#D8AC35]/20 text-white border border-[#D8AC35]/60" 
+              : "text-[#D8AC35] hover:text-[#D8AC35]/80 hover:bg-[#D8AC35]/10"
           )}
         >
-          Monthly
+          {!isAnnual && (
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 ease-out"></div>
+          )}
+          <span className="relative z-10">Monthly</span>
         </button>
         <button
           onClick={() => handleToggle(true)}
           className={cn(
-            "flex-1 py-2.5 px-4 text-sm font-medium rounded-full transition-all duration-300 z-10 relative focus:outline-none",
+            "flex-1 py-2.5 px-4 text-sm font-bold rounded-full transition-all duration-300 z-10 relative focus:outline-none group overflow-hidden",
             isAnnual 
-              ? "bg-white dark:bg-gray-900 shadow-sm text-gray-900 dark:text-white border border-gray-200/20 dark:border-gray-700/20" 
-              : "text-gray-500 dark:text-gray-500 hover:text-gray-900 dark:hover:text-gray-200"
+              ? "bg-gradient-to-r from-[#D8AC35]/80 to-[#D8AC35]/60 shadow-lg shadow-[#D8AC35]/20 text-white border border-[#D8AC35]/60" 
+              : "text-[#D8AC35] hover:text-[#D8AC35]/80 hover:bg-[#D8AC35]/10"
           )}
         >
-          Annual
+          {isAnnual && (
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 ease-out"></div>
+          )}
+          <span className="relative z-10">Annual</span>
         </button>
       </div>
       
