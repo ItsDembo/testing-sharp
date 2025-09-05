@@ -82,45 +82,38 @@ export function useStaggeredScrollAnimation(count: number, staggerDelay: number 
   const observers = useRef<IntersectionObserver[]>([]);
   const timeouts = useRef<NodeJS.Timeout[]>([]);
   const hasUserScrolled = useRef(false);
-  const navigationDelay = useRef<NodeJS.Timeout | null>(null);
+  const scrollTimer = useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
     refs.current = refs.current.slice(0, count);
     
-    // Reset user scroll tracking on mount
+    // Reset scroll tracking
     hasUserScrolled.current = false;
     
-    // Track user scrolling to differentiate from programmatic navigation scrolling
-    const handleUserScroll = () => {
-      hasUserScrolled.current = true;
-      window.removeEventListener('scroll', handleUserScroll);
+    // Simple scroll detection with delay
+    const handleScroll = () => {
+      if (scrollTimer.current) clearTimeout(scrollTimer.current);
+      scrollTimer.current = setTimeout(() => {
+        hasUserScrolled.current = true;
+      }, 300);
     };
     
-    // Wait for navigation scroll to settle before enabling user scroll tracking
-    navigationDelay.current = setTimeout(() => {
-      window.addEventListener('scroll', handleUserScroll, { passive: true });
-    }, 500); // Give time for navigation auto-scroll to complete
+    // Add scroll listener after a short delay to avoid navigation scrolling
+    const initTimer = setTimeout(() => {
+      window.addEventListener('scroll', handleScroll, { passive: true });
+    }, 600);
     
-    // Cleanup function to reset all animations and observers
     return () => {
-      // Clear navigation delay timeout
-      if (navigationDelay.current) {
-        clearTimeout(navigationDelay.current);
-        navigationDelay.current = null;
-      }
+      clearTimeout(initTimer);
+      if (scrollTimer.current) clearTimeout(scrollTimer.current);
+      window.removeEventListener('scroll', handleScroll);
       
-      // Remove scroll listener
-      window.removeEventListener('scroll', handleUserScroll);
-      
-      // Clear all timeouts
       timeouts.current.forEach(timeout => clearTimeout(timeout));
       timeouts.current = [];
       
-      // Disconnect all observers
       observers.current.forEach(observer => observer.disconnect());
       observers.current = [];
       
-      // Reset all elements to initial state
       refs.current.forEach(element => {
         if (element) {
           element.style.opacity = '0';
