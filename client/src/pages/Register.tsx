@@ -209,10 +209,8 @@ export default function Register() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="relative w-full h-12 text-base bg-[#D8AC35] hover:bg-[#B8941F] text-black font-semibold transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group"
+                    className="w-full h-12 text-base bg-[#D8AC35] hover:bg-[#B8941F] text-black font-semibold transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-full"
                   >
-                    {/* Shimmer effect */}
-                    <div className="absolute inset-0 -top-full group-hover:top-full bg-gradient-to-r from-transparent via-white/30 to-transparent transform transition-all duration-600 ease-out"></div>
                     {isLoading ? (
                       <>
                         <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin mr-2"></div>
