@@ -109,9 +109,9 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-[#D8AC35]/20 dark:from-black dark:via-gray-900 dark:to-[#D8AC35]/10">
-      <div className="max-w-6xl mx-auto px-6 lg:px-12 py-20">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-32">
         {/* Page Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-24">
           <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#D8AC35]/10 border border-[#D8AC35]/20 mb-8">
             <div className="w-2 h-2 rounded-full bg-[#D8AC35]"></div>
             <span className="text-sm font-semibold text-[#D8AC35] uppercase tracking-[0.2em]">CREATE ACCOUNT</span>
@@ -271,7 +271,7 @@ export default function Register() {
             </div>
 
             {/* Badges */}
-            <div className="flex flex-wrap items-center justify-center gap-4 mb-8 max-w-[1600px] mx-auto">
+            <div className="flex flex-wrap items-center justify-center gap-4 mb-16 mt-20 max-w-[1600px] mx-auto">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100/50 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-800/50">
                 <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                 <span className="text-sm font-medium text-blue-700 dark:text-blue-400 uppercase tracking-wider">Data-Driven</span>
@@ -287,7 +287,7 @@ export default function Register() {
             </div>
 
             {/* Support Strip */}
-            <div className="text-center max-w-[1600px] mx-auto">
+            <div className="text-center max-w-[1600px] mx-auto mt-12">
               <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                 <Lock className="w-4 h-4" />
                 <span>Questions about your account? </span>
