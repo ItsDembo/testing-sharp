@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Lock } from "lucide-react";
 
 interface PasswordInputProps {
   id: string;
@@ -12,6 +12,7 @@ interface PasswordInputProps {
   disabled?: boolean;
   className?: string;
   minLength?: number;
+  showLockIcon?: boolean;
 }
 
 export default function PasswordInput({ 
@@ -22,12 +23,16 @@ export default function PasswordInput({
   required = false, 
   disabled = false, 
   className = "",
-  minLength
+  minLength,
+  showLockIcon = false
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="relative">
+      {showLockIcon && (
+        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500 pointer-events-none z-10" />
+      )}
       <Input
         id={id}
         type={showPassword ? "text" : "password"}
@@ -37,7 +42,7 @@ export default function PasswordInput({
         required={required}
         disabled={disabled}
         minLength={minLength}
-        className={`pr-12 ${className}`}
+        className={`pr-12 ${showLockIcon ? 'pl-10' : ''} ${className}`}
       />
       <Button
         type="button"

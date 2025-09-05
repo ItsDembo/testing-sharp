@@ -191,19 +191,17 @@ export default function Register() {
                     <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Password
                     </Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500 pointer-events-none" />
-                      <PasswordInput
-                        id="password"
-                        placeholder="Create a password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        disabled={isLoading}
-                        minLength={8}
-                        className="h-12 text-base bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-150 focus:ring-4 focus:ring-[#D8AC35]/20 focus:border-[#D8AC35] focus:shadow-lg focus:shadow-[#D8AC35]/25 pl-10"
-                      />
-                    </div>
+                    <PasswordInput
+                      id="password"
+                      placeholder="Create a password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      disabled={isLoading}
+                      minLength={8}
+                      showLockIcon={true}
+                      className="h-12 text-base bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-150 focus:ring-4 focus:ring-[#D8AC35]/20 focus:border-[#D8AC35] focus:shadow-lg focus:shadow-[#D8AC35]/25"
+                    />
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       8+ characters, one number, one symbol.
                     </p>
@@ -214,18 +212,16 @@ export default function Register() {
                     <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Confirm Password
                     </Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500 pointer-events-none" />
-                      <PasswordInput
-                        id="confirmPassword"
-                        placeholder="Confirm your password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                        disabled={isLoading}
-                        className="h-12 text-base bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-150 focus:ring-4 focus:ring-[#D8AC35]/20 focus:border-[#D8AC35] focus:shadow-lg focus:shadow-[#D8AC35]/25 pl-10"
-                      />
-                    </div>
+                    <PasswordInput
+                      id="confirmPassword"
+                      placeholder="Confirm your password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      disabled={isLoading}
+                      showLockIcon={true}
+                      className="h-12 text-base bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-150 focus:ring-4 focus:ring-[#D8AC35]/20 focus:border-[#D8AC35] focus:shadow-lg focus:shadow-[#D8AC35]/25"
+                    />
                   </div>
 
                   {/* Create Account Button */}
