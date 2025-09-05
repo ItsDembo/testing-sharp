@@ -54,13 +54,21 @@ export function PricingToggle({ onToggle, className }: PricingToggleProps) {
       {/* Save 2 Months Pill - Positioned to the right */}
       <div className="absolute left-[calc(50%+120px)] w-[120px] flex items-center justify-center">
         <div className={cn(
-          "flex items-center gap-2 px-3 py-2.5 h-[48px] rounded-full border text-sm transition-all duration-300",
+          "flex items-center gap-2 px-4 py-3 h-[48px] rounded-full border-2 text-sm font-bold transition-all duration-300 relative overflow-hidden group",
           isAnnual 
-            ? "border-gray-200/50 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 opacity-100" 
+            ? "border-green-400 bg-gradient-to-r from-green-400/20 to-green-300/15 text-green-400 shadow-lg shadow-green-400/20 opacity-100 animate-pulse" 
             : "border-transparent bg-transparent text-transparent opacity-0"
         )}>
-          <div className="w-1.5 h-1.5 rounded-full bg-[#D8AC35]"></div>
-          Save 2 months
+          {/* Neon glow effect */}
+          {isAnnual && (
+            <div className="absolute inset-0 bg-gradient-to-r from-green-400/10 via-green-300/20 to-green-400/10 rounded-full blur-sm"></div>
+          )}
+          {/* Shimmer effect */}
+          {isAnnual && (
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-green-400/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
+          )}
+          <div className="w-2 h-2 rounded-full bg-green-400 shadow-sm shadow-green-400/50 relative z-10"></div>
+          <span className="relative z-10">Save 2 months</span>
         </div>
       </div>
     </div>
