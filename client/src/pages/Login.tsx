@@ -6,10 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Lock } from "lucide-react";
+import { Lock, Mail } from "lucide-react";
 import AuthTerminal from "@/components/auth/AuthTerminal";
 import SSOButtons from "@/components/auth/SSOButtons";
 import PasswordInput from "@/components/auth/PasswordInput";
+import { useStaggeredScrollAnimation } from "@/hooks/useScrollAnimation";
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -18,6 +19,7 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { createRef } = useStaggeredScrollAnimation(3, 150);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,16 +119,19 @@ export default function Login() {
                     <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Email
                     </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      disabled={isLoading}
-                      className="h-12 text-base bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-150 focus:ring-2 focus:ring-[#D8AC35]/30 focus:border-[#D8AC35]"
-                    />
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500 pointer-events-none" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        disabled={isLoading}
+                        className="h-12 text-base bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-150 focus:ring-4 focus:ring-[#D8AC35]/20 focus:border-[#D8AC35] focus:shadow-lg focus:shadow-[#D8AC35]/25 pl-10"
+                      />
+                    </div>
                   </div>
 
                   {/* Password Field */}
@@ -134,15 +139,18 @@ export default function Login() {
                     <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Password
                     </Label>
-                    <PasswordInput
-                      id="password"
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      disabled={isLoading}
-                      className="h-12 text-base bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-150 focus:ring-2 focus:ring-[#D8AC35]/30 focus:border-[#D8AC35]"
-                    />
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500 pointer-events-none" />
+                      <PasswordInput
+                        id="password"
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        disabled={isLoading}
+                        className="h-12 text-base bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-150 focus:ring-4 focus:ring-[#D8AC35]/20 focus:border-[#D8AC35] focus:shadow-lg focus:shadow-[#D8AC35]/25 pl-10"
+                      />
+                    </div>
                   </div>
 
                   {/* Remember Me & Forgot Password Row */}
@@ -169,8 +177,10 @@ export default function Login() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full h-12 text-base bg-[#D8AC35] hover:bg-[#B8941F] text-black font-semibold transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-full"
+                    className="relative w-full h-12 text-base bg-[#D8AC35] hover:bg-[#B8941F] active:translate-y-0.5 text-black font-semibold transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-full overflow-hidden group"
                   >
+                    {/* Shimmer effect */}
+                    <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 transition-transform transition-opacity duration-700 ease-out will-change-transform group-hover:opacity-100 group-hover:translate-x-full group-focus-visible:opacity-100 group-focus-visible:translate-x-full motion-reduce:transition-none"></div>
                     {isLoading ? (
                       <>
                         <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin mr-2"></div>
@@ -209,15 +219,15 @@ export default function Login() {
 
             {/* Badges */}
             <div className="flex flex-wrap items-center justify-center gap-4 mb-8 mt-12">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100/50 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-800/50">
+              <div ref={createRef(0)} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100/50 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-800/50">
                 <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                 <span className="text-sm font-medium text-blue-700 dark:text-blue-400 uppercase tracking-wider">Data-Driven</span>
               </div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100/50 dark:bg-green-900/20 border border-green-200/50 dark:border-green-800/50">
+              <div ref={createRef(1)} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100/50 dark:bg-green-900/20 border border-green-200/50 dark:border-green-800/50">
                 <div className="w-2 h-2 rounded-full bg-green-500"></div>
                 <span className="text-sm font-medium text-green-700 dark:text-green-400 uppercase tracking-wider">Transparent</span>
               </div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100/50 dark:bg-purple-900/20 border border-purple-200/50 dark:border-purple-800/50">
+              <div ref={createRef(2)} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100/50 dark:bg-purple-900/20 border border-purple-200/50 dark:border-purple-800/50">
                 <div className="w-2 h-2 rounded-full bg-purple-500"></div>
                 <span className="text-sm font-medium text-purple-700 dark:text-purple-400 uppercase tracking-wider">Secure</span>
               </div>
