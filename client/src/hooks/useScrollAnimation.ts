@@ -167,7 +167,7 @@ export function useStaggeredScrollAnimation(count: number, staggerDelay: number 
           },
           {
             threshold: 0.1,
-            rootMargin: "0px 0px 50px 0px"
+            rootMargin: "0px 0px 25px 0px"
           }
         );
 
