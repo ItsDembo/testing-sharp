@@ -12,20 +12,6 @@ import SSOButtons from "@/components/auth/SSOButtons";
 import PasswordInput from "@/components/auth/PasswordInput";
 
 export default function Login() {
-  // Parallax effect
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const { clientX, clientY } = e;
-    const { innerWidth, innerHeight } = window;
-    const xPercent = (clientX / innerWidth) * 100;
-    const yPercent = (clientY / innerHeight) * 100;
-    const translateX = (xPercent - 50) * 0.05; // Very subtle movement
-    const translateY = (yPercent - 50) * 0.05;
-    
-    const element = document.querySelector('.parallax-bg') as HTMLElement;
-    if (element) {
-      element.style.transform = `translate(${translateX}px, ${translateY}px)`;
-    }
-  };
   const [, setLocation] = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -90,17 +76,7 @@ export default function Login() {
   };
 
   return (
-    <div 
-      className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-[#D8AC35]/20 dark:from-black dark:via-gray-900 dark:to-[#D8AC35]/10 relative overflow-hidden"
-      onMouseMove={handleMouseMove}
-    >
-      {/* Parallax Background Grid */}
-      <div className="parallax-bg absolute inset-0 opacity-5 dark:opacity-10 pointer-events-none transition-transform duration-100 ease-out">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `linear-gradient(90deg, #D8AC35 1px, transparent 1px), linear-gradient(#D8AC35 1px, transparent 1px)`,
-          backgroundSize: '20px 20px'
-        }}></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-[#D8AC35]/20 dark:from-black dark:via-gray-900 dark:to-[#D8AC35]/10">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-20">
         {/* Page Header */}
         <div className="text-center mb-16">
@@ -202,9 +178,8 @@ export default function Login() {
                   <div className="text-center">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Don't have an account? </span>
                     <Link href="/register">
-                      <span className="relative text-sm text-[#D8AC35] hover:text-[#B8941F] transition-colors duration-150 cursor-pointer font-medium group">
+                      <span className="text-sm text-[#D8AC35] hover:text-[#B8941F] hover:underline transition-colors duration-150 cursor-pointer font-medium">
                         Create account
-                        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D8AC35] group-hover:w-full transition-all duration-300 ease-out"></span>
                       </span>
                     </Link>
                   </div>
