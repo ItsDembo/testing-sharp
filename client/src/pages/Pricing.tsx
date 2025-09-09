@@ -177,7 +177,15 @@ export default function Pricing() {
 
           {/* Unlimited Plan */}
           <div className="group bg-gray-50/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl border border-[#D8AC35]/30 px-8 py-7 h-full flex flex-col transition-all duration-300 hover:transform hover:translate-y-[-2px] hover:border-[#D8AC35]/50 relative cursor-crosshair dark:cursor-crosshair-white [&_*]:cursor-crosshair dark:[&_*]:cursor-crosshair-white"
-               onClick={() => (document.querySelector('[href="/subscribe"]') as HTMLElement)?.click()}>
+               onClick={() => {
+                 if (!isAnnual) {
+                   // Monthly billing selected - redirect to Stripe checkout
+                   window.location.href = 'https://buy.stripe.com/8x28wP4qM5t65C48bFbAs01';
+                 } else {
+                   // Annual billing selected - go to regular subscribe page
+                   window.location.href = '/subscribe';
+                 }
+               }}>
             {/* Most Popular Pill - At top edge of Unlimited card */}
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
               <div className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-1.5 rounded-full text-xs font-medium border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
@@ -244,26 +252,33 @@ export default function Pricing() {
 
             </ul>
             
-            <Link href="/subscribe" className="cursor-inherit">
-              <button 
-                onClick={scrollToTop}
-                onMouseEnter={() => {
-                  // Trigger localized card sweep on button hover
-                  const cards = document.querySelectorAll('.group.bg-gray-50\\/50');
-                  const card = cards[1]; // Second card (Unlimited)
-                  if (card) {
-                    const sweep = document.createElement('div');
-                    sweep.className = 'absolute inset-0 bg-gradient-to-r from-transparent via-[rgba(216,172,53,0.1)] to-transparent opacity-0 animate-[cardSweep_300ms_ease-out] pointer-events-none';
-                    card.appendChild(sweep);
-                    setTimeout(() => sweep.remove(), 300);
-                  }
-                }}
-                className="w-full py-4 px-8 rounded-full bg-gradient-to-r from-[#D8AC35]/80 to-[#D8AC35]/60 text-white border-2 border-[#D8AC35]/60 hover:from-[#D8AC35]/90 hover:to-[#D8AC35]/70 hover:border-[#D8AC35]/80 hover:shadow-lg hover:shadow-[#D8AC35]/20 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#D8AC35]/20 font-bold text-base relative overflow-hidden group mt-6">
-                {/* Background shimmer effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out"></div>
-                <span className="relative z-10">Choose Unlimited</span>
-              </button>
-            </Link>
+            <button 
+              onClick={() => {
+                if (!isAnnual) {
+                  // Monthly billing selected - redirect to Stripe checkout
+                  window.location.href = 'https://buy.stripe.com/8x28wP4qM5t65C48bFbAs01';
+                } else {
+                  // Annual billing selected - go to regular subscribe page
+                  scrollToTop();
+                  window.location.href = '/subscribe';
+                }
+              }}
+              onMouseEnter={() => {
+                // Trigger localized card sweep on button hover
+                const cards = document.querySelectorAll('.group.bg-gray-50\\/50');
+                const card = cards[1]; // Second card (Unlimited)
+                if (card) {
+                  const sweep = document.createElement('div');
+                  sweep.className = 'absolute inset-0 bg-gradient-to-r from-transparent via-[rgba(216,172,53,0.1)] to-transparent opacity-0 animate-[cardSweep_300ms_ease-out] pointer-events-none';
+                  card.appendChild(sweep);
+                  setTimeout(() => sweep.remove(), 300);
+                }
+              }}
+              className="w-full py-4 px-8 rounded-full bg-gradient-to-r from-[#D8AC35]/80 to-[#D8AC35]/60 text-white border-2 border-[#D8AC35]/60 hover:from-[#D8AC35]/90 hover:to-[#D8AC35]/70 hover:border-[#D8AC35]/80 hover:shadow-lg hover:shadow-[#D8AC35]/20 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#D8AC35]/20 font-bold text-base relative overflow-hidden group mt-6">
+              {/* Background shimmer effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out"></div>
+              <span className="relative z-10">Choose Unlimited</span>
+            </button>
           </div>
         </div>
 
