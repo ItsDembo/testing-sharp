@@ -82,7 +82,15 @@ export default function Pricing() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-7 mb-16 max-w-[1280px] mx-auto">
           {/* Pro Plan */}
           <div className="group bg-gray-50/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-2xl shadow-sm hover:shadow-lg border border-gray-200/50 dark:border-gray-700/50 px-8 py-7 h-full flex flex-col transition-all duration-300 hover:transform hover:translate-y-[-2px] hover:border-gray-300/60 dark:hover:border-gray-600/60 cursor-crosshair dark:cursor-crosshair-white [&_*]:cursor-crosshair dark:[&_*]:cursor-crosshair-white"
-               onClick={() => (document.querySelector('[href="/subscribe"]') as HTMLElement)?.click()}>
+               onClick={() => {
+                 if (!isAnnual) {
+                   // Monthly billing selected - redirect to Stripe checkout
+                   window.location.href = 'https://buy.stripe.com/7sYdR92iEaNq3tW3VpbAs00';
+                 } else {
+                   // Annual billing selected - go to regular subscribe page
+                   window.location.href = '/subscribe';
+                 }
+               }}>
             <div className="text-center">
               <h3 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Pro</h3>
               <div className="flex items-baseline justify-center gap-1 transition-all duration-300 mb-3">
@@ -138,26 +146,33 @@ export default function Pricing() {
               </li>
             </ul>
             
-            <Link href="/subscribe" className="cursor-inherit">
-              <button 
-                onClick={scrollToTop}
-                onMouseEnter={() => {
-                  // Trigger localized card sweep on button hover
-                  const cards = document.querySelectorAll('.group.bg-gray-50\\/50');
-                  const card = cards[0]; // First card (Pro)
-                  if (card) {
-                    const sweep = document.createElement('div');
-                    sweep.className = 'absolute inset-0 bg-gradient-to-r from-transparent via-[rgba(216,172,53,0.1)] to-transparent opacity-0 animate-[cardSweep_300ms_ease-out] pointer-events-none';
-                    card.appendChild(sweep);
-                    setTimeout(() => sweep.remove(), 300);
-                  }
-                }}
-                className="w-full py-4 px-8 rounded-full bg-gradient-to-r from-[#D8AC35]/80 to-[#D8AC35]/60 text-white border-2 border-[#D8AC35]/60 hover:from-[#D8AC35]/90 hover:to-[#D8AC35]/70 hover:border-[#D8AC35]/80 hover:shadow-lg hover:shadow-[#D8AC35]/20 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#D8AC35]/20 font-bold text-base relative overflow-hidden group mt-6">
-                {/* Background shimmer effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out"></div>
-                <span className="relative z-10">Choose Pro</span>
-              </button>
-            </Link>
+            <button 
+              onClick={() => {
+                if (!isAnnual) {
+                  // Monthly billing selected - redirect to Stripe checkout
+                  window.location.href = 'https://buy.stripe.com/7sYdR92iEaNq3tW3VpbAs00';
+                } else {
+                  // Annual billing selected - go to regular subscribe page
+                  scrollToTop();
+                  window.location.href = '/subscribe';
+                }
+              }}
+              onMouseEnter={() => {
+                // Trigger localized card sweep on button hover
+                const cards = document.querySelectorAll('.group.bg-gray-50\\/50');
+                const card = cards[0]; // First card (Pro)
+                if (card) {
+                  const sweep = document.createElement('div');
+                  sweep.className = 'absolute inset-0 bg-gradient-to-r from-transparent via-[rgba(216,172,53,0.1)] to-transparent opacity-0 animate-[cardSweep_300ms_ease-out] pointer-events-none';
+                  card.appendChild(sweep);
+                  setTimeout(() => sweep.remove(), 300);
+                }
+              }}
+              className="w-full py-4 px-8 rounded-full bg-gradient-to-r from-[#D8AC35]/80 to-[#D8AC35]/60 text-white border-2 border-[#D8AC35]/60 hover:from-[#D8AC35]/90 hover:to-[#D8AC35]/70 hover:border-[#D8AC35]/80 hover:shadow-lg hover:shadow-[#D8AC35]/20 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#D8AC35]/20 font-bold text-base relative overflow-hidden group mt-6">
+              {/* Background shimmer effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out"></div>
+              <span className="relative z-10">Choose Pro</span>
+            </button>
           </div>
 
           {/* Unlimited Plan */}
