@@ -181,8 +181,8 @@ export default function Pricing() {
                    // Monthly billing selected - redirect to Stripe checkout
                    window.location.href = 'https://buy.stripe.com/8x28wP4qM5t65C48bFbAs01';
                  } else {
-                   // Annual billing selected - go to regular subscribe page
-                   window.location.href = '/subscribe';
+                   // Annual billing selected - redirect to Stripe annual checkout
+                   window.location.href = 'https://buy.stripe.com/28EfZhaPa6xa0hKgIbbAs03';
                  }
                }}>
             {/* Most Popular Pill - At top edge of Unlimited card */}
@@ -257,9 +257,8 @@ export default function Pricing() {
                   // Monthly billing selected - redirect to Stripe checkout
                   window.location.href = 'https://buy.stripe.com/8x28wP4qM5t65C48bFbAs01';
                 } else {
-                  // Annual billing selected - go to regular subscribe page
-                  scrollToTop();
-                  window.location.href = '/subscribe';
+                  // Annual billing selected - redirect to Stripe annual checkout
+                  window.location.href = 'https://buy.stripe.com/28EfZhaPa6xa0hKgIbbAs03';
                 }
               }}
               onMouseEnter={() => {
