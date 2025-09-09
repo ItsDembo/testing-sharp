@@ -87,8 +87,8 @@ export default function Pricing() {
                    // Monthly billing selected - redirect to Stripe checkout
                    window.location.href = 'https://buy.stripe.com/7sYdR92iEaNq3tW3VpbAs00';
                  } else {
-                   // Annual billing selected - go to regular subscribe page
-                   window.location.href = '/subscribe';
+                   // Annual billing selected - redirect to Stripe annual checkout
+                   window.location.href = 'https://buy.stripe.com/7sY4gzaPabRu4y0ajNbAs02';
                  }
                }}>
             <div className="text-center">
@@ -152,9 +152,8 @@ export default function Pricing() {
                   // Monthly billing selected - redirect to Stripe checkout
                   window.location.href = 'https://buy.stripe.com/7sYdR92iEaNq3tW3VpbAs00';
                 } else {
-                  // Annual billing selected - go to regular subscribe page
-                  scrollToTop();
-                  window.location.href = '/subscribe';
+                  // Annual billing selected - redirect to Stripe annual checkout
+                  window.location.href = 'https://buy.stripe.com/7sY4gzaPabRu4y0ajNbAs02';
                 }
               }}
               onMouseEnter={() => {
