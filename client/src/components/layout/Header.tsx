@@ -12,6 +12,7 @@ import { scrollToTop } from "@/utils/scrollToTop";
 const resourcesItems = [
   { name: "Memberships", href: "/pricing" },
   { name: "About", href: "/about" },
+  { name: "Affiliate", href: "/affiliate" },
   { name: "Tutorials", href: "/tutorials" },
   { name: "FAQ", href: "/faq" },
   { name: "Glossary", href: "/glossary" },

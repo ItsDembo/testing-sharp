@@ -38,6 +38,7 @@ import Resources from "@/pages/Resources";
 import Glossary from "@/pages/Glossary";
 import Support from "@/pages/Support";
 import Privacy from "@/pages/Privacy";
+import Affiliate from "@/pages/Affiliate";
 
 function Router() {
   const [location] = useLocation();
@@ -77,6 +78,7 @@ function Router() {
           <Route path="/glossary" component={Glossary} />
           <Route path="/support" component={Support} />
           <Route path="/privacy" component={Privacy} />
+          <Route path="/affiliate" component={Affiliate} />
           <Route component={NotFound} />
         </Switch>
       </main>

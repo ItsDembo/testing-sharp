@@ -1,0 +1,112 @@
+Create a new page at /affiliate that inherits our existing Sharp Shot styles (use current site tokens/variables and components). Keep the voice sharp, confident, finance-adjacent. Do not mention mobile optimization.
+
+Structure:
+
+Hero
+
+Headline: Become a Sharp Shot Affiliate.
+
+Subhead: It’s not luck. It’s leverage—earn 51% recurring revenue by sharing tools built for sharps.
+
+CTAs:
+• Apply Now → https://representatives.sharp-shot.com/register
+ (open in new tab, use rel="noopener noreferrer")
+• Affiliate Portal Login → https://representatives.sharp-shot.com/login
+ (open in new tab, use rel="noopener noreferrer")
+
+Stat cards:
+• 51% recurring commission
+• Creator-friendly assets and tracking
+• Transparent dashboards and support
+
+How It Works (3 steps)
+
+Step 1: Apply & get your link.
+Body: Click Apply Now to register through our partner platform and receive your unique referral link.
+
+Step 2: Share what you actually use.
+Body: Publish tutorials, presets, or reviews. We provide ready-to-ship assets.
+
+Step 3: Earn monthly, automatically.
+Body: Every paying subscriber you bring in earns you 51% recurring commission.
+
+Affiliate Benefits (card grid)
+
+Title: Why Sharp Shot Affiliates Win
+
+Cards:
+• Highest payouts—51% recurring
+• Fast tracking and transparent dashboards
+• Preset sharing that converts followers
+• Responsive creator-first support
+• Campaign assets ready on day one
+• Featured placements for top performers
+
+Creator Resources (cards with small thumbnails)
+
+Intro: We hand you what performs.
+
+Cards:
+• Template videos and b-roll
+• Preset screenshots and overlays
+• Talking points and disclaimers
+• Brand kit: logo, colors, typography
+
+Community & Recognition
+
+Title: Join a growing community.
+
+Copy: Affiliates aren’t just partners—they’re part of the Sharp Shot ecosystem. We spotlight top creators in:
+• Community Highlights on our platform
+• Dedicated Discord channels for strategy and feedback
+• Co-marketing opportunities with Sharp Shot
+
+Add placeholder visuals (Discord badge, community callout panel).
+
+FAQs (accordion)
+Include:
+
+Who can apply?
+
+How are commissions tracked?
+
+When are payouts made?
+
+Can affiliates share presets?
+
+Are there content guidelines?
+
+Is this gambling advice?
+
+Compliance and Fine Print (footer note)
+For informational and educational purposes. Not gambling advice. Must be of legal age where you wager. Check local laws. Terms apply.
+Link: Support → /support or mailto:support@sharpshotcalc.com
+
+Final CTA band
+
+Copy: Ready to turn transparency into recurring revenue?
+
+Buttons:
+• Apply Now → https://representatives.sharp-shot.com/register
+ (new tab)
+• Talk to Our Team → /support
+
+Interactions and visuals
+
+Use existing button styles. Primary buttons shimmer on hover; ghost buttons get a thin underline animation.
+
+Add subtle “external link” icon for both off-site CTAs.
+
+Respect current spacing, grid, typography, and backgrounds across the site.
+
+Routing summary
+
+Apply Now → https://representatives.sharp-shot.com/register
+
+Affiliate Portal Login → https://representatives.sharp-shot.com/login
+
+Support → /support or mailto:support@sharpshotcalc.com
+
+Hero copy to paste:
+Become a Sharp Shot Affiliate.
+It’s not luck. It’s leverage—earn 51% recurring revenue by sharing tools built for sharps.
