@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { TrendingUp, RefreshCw, Pause, Play, AlertCircle, Clock } from "lucide-react";
+import { TrendingUp, RefreshCw, Pause, Play, AlertCircle, Clock, Calculator } from "lucide-react";
 import { FilterBar } from '../components/terminal/filters/FilterBar';
 import { ActiveFilterChips } from '../components/terminal/filters/ActiveFilterChips';
 import { TipCardMyBook } from '../components/terminal/filters/TipCardMyBook';
@@ -17,6 +17,12 @@ import { CategoryTabs, CategoryBadge } from '../components/CategoryTabs';
 import { BetCategorizer, type BetCategory } from '../../../shared/betCategories';
 import { CacheService } from '@/services/cacheService';
 import LaunchStatusWidget from '../components/LaunchStatusWidget';
+import { EVCalculator } from '../components/calculators/EVCalculator';
+import { ArbitrageCalculator } from '../components/calculators/ArbitrageCalculator';
+import { MiddlingCalculator } from '../components/calculators/MiddlingCalculator';
+import { AllProfitableCalculator } from '../components/calculators/AllProfitableCalculator';
+import { FeatureGate } from '../components/FeatureGate';
+import { ExportButton } from '../components/ExportButton';
 
 // Available sportsbooks for filtering
 const AVAILABLE_BOOKS = [
@@ -280,6 +286,10 @@ export default function TradingTerminal() {
                     <div className="flex items-center justify-between">
                       <CategoryTabs activeCategory={activeCategory} onCategoryChange={setActiveCategory} opportunities={opportunities} />
                       <div className="flex items-center gap-4">
+                        <ExportButton
+                          opportunities={opportunities}
+                          className="font-mono text-xs"
+                        />
                         <Button
                           variant="outline"
                           size="sm"
@@ -327,14 +337,16 @@ export default function TradingTerminal() {
                 </div>
               </TabsContent>
 
-              {/* Other Tabs */}
+              {/* Calculator Tab */}
               <TabsContent value="calculator" className="min-h-screen m-0 p-0 flex-1">
                 <div className="p-8 space-y-6">
-                  <div className="text-center py-16">
-                    <h3 className="text-lg font-mono text-gray-600 dark:text-gray-400 mb-2">EV CALCULATOR</h3>
-                    <p className="text-gray-500 dark:text-gray-500 font-mono text-sm">
-                      Coming soon - advanced calculator features.
-                    </p>
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <EVCalculator />
+                    <ArbitrageCalculator />
+                  </div>
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <MiddlingCalculator />
+                    <AllProfitableCalculator />
                   </div>
                 </div>
               </TabsContent>

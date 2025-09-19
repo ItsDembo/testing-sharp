@@ -13,7 +13,7 @@ import { insertPaymentSchema, insertUserSchema, passwordResetRequestSchema, pass
 import { sportsDataService } from "./sportsDataService";
 import { bettingDataService } from "./bettingDataService";
 import { OddsDeduplicator } from './oddsDeduplicator';
-import { contentEngineRoutes } from "../content_engine/api/routes";
+// import { contentEngineRoutes } from "../content_engine/api/routes";
 import { emailService } from "./emailService";
 import { setupTeamLogoRoutes } from "./teamLogoProxy";
 import launchStatusRoutes from './routes/launchStatus';
@@ -1036,7 +1036,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
   // Content Engine API integration
-  app.use('/api/content-engine', contentEngineRoutes);
+  // app.use('/api/content-engine', contentEngineRoutes);
 
   // Team Logo Proxy Routes
   setupTeamLogoRoutes(app);

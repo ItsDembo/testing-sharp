@@ -10,6 +10,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { useTerminalFilters, MOCK_LEAGUES, MOCK_MARKETS, MOCK_PROP_TYPES, MOCK_BOOKS, formatOddsWithProbability } from './store';
+import { FeatureGate, useFeatureAccess } from '@/components/FeatureGate';
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -352,63 +353,109 @@ export function FilterBar() {
           </div>
           
           {/* Column 9-12: EV Threshold (40% width, stacked) */}
-          <div className="col-span-4 space-y-3">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              EV Threshold
-            </Label>
-            <div className="space-y-3">
-              <div className="relative w-3/5">
-                {/* Modern Slider Track */}
-                <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <div 
-                    className="absolute h-full bg-gradient-to-r from-[#D8AC35] to-[#F4C842] rounded-full transition-all duration-200 shadow-sm"
-                    style={{ width: `${(evThreshold / 20) * 100}%` }}
+          <FeatureGate
+            feature="advancedFilters"
+            requiredPlan="pro"
+            showUpgrade={false}
+            fallback={
+              <div className="col-span-4 space-y-3">
+                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  EV Threshold <Badge variant="outline" className="ml-2 text-xs">Pro</Badge>
+                </Label>
+                <div className="space-y-3 opacity-50">
+                  <div className="relative w-3/5">
+                    <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div className="absolute h-full bg-gray-400 rounded-full w-0" />
+                    </div>
+                    <div className="absolute w-5 h-5 bg-gray-300 border-2 border-gray-400 rounded-full shadow-lg transform -translate-y-1/2 -translate-x-1/2" style={{ left: '0%', top: '50%' }} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input type="number" value={0} disabled className="w-16 px-2 py-1 text-xs border rounded-md bg-gray-100 text-center font-mono" />
+                    <Badge variant="outline" className="text-xs font-mono text-gray-400 border-gray-300">≥0.0%</Badge>
+                  </div>
+                </div>
+              </div>
+            }
+          >
+            <div className="col-span-4 space-y-3">
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                EV Threshold
+              </Label>
+              <div className="space-y-3">
+                <div className="relative w-3/5">
+                  {/* Modern Slider Track */}
+                  <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className="absolute h-full bg-gradient-to-r from-[#D8AC35] to-[#F4C842] rounded-full transition-all duration-200 shadow-sm"
+                      style={{ width: `${(evThreshold / 20) * 100}%` }}
+                    />
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={20}
+                    step={0.1}
+                    value={evThreshold}
+                    onChange={(e) => setEvThreshold(parseFloat(e.target.value))}
+                    className="absolute top-0 left-0 w-full h-2 opacity-0 cursor-pointer"
+                  />
+                  {/* Custom Knob */}
+                  <div
+                    className="absolute w-5 h-5 bg-white border-2 border-[#D8AC35] rounded-full shadow-lg cursor-pointer transform -translate-y-1/2 -translate-x-1/2 hover:scale-110 transition-transform"
+                    style={{ left: `${(evThreshold / 20) * 100}%`, top: '50%' }}
                   />
                 </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={20}
-                  step={0.1}
-                  value={evThreshold}
-                  onChange={(e) => setEvThreshold(parseFloat(e.target.value))}
-                  className="absolute top-0 left-0 w-full h-2 opacity-0 cursor-pointer"
-                />
-                {/* Custom Knob */}
-                <div 
-                  className="absolute w-5 h-5 bg-white border-2 border-[#D8AC35] rounded-full shadow-lg cursor-pointer transform -translate-y-1/2 -translate-x-1/2 hover:scale-110 transition-transform"
-                  style={{ left: `${(evThreshold / 20) * 100}%`, top: '50%' }}
-                />
-              </div>
-              
-              {/* Value Display and Direct Input */}
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  value={evThreshold}
-                  onChange={(e) => setEvThreshold(Math.max(0, Math.min(20, parseFloat(e.target.value) || 0)))}
-                  className="w-16 px-2 py-1 text-xs border rounded-md bg-background text-center font-mono"
-                  step={0.1}
-                  min={0}
-                  max={20}
-                />
-                <Badge variant="outline" className="text-xs font-mono text-[#D8AC35] border-[#D8AC35]/30">
-                  ≥{evThreshold.toFixed(1)}%
-                </Badge>
+
+                {/* Value Display and Direct Input */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={evThreshold}
+                    onChange={(e) => setEvThreshold(Math.max(0, Math.min(20, parseFloat(e.target.value) || 0)))}
+                    className="w-16 px-2 py-1 text-xs border rounded-md bg-background text-center font-mono"
+                    step={0.1}
+                    min={0}
+                    max={20}
+                  />
+                  <Badge variant="outline" className="text-xs font-mono text-[#D8AC35] border-[#D8AC35]/30">
+                    ≥{evThreshold.toFixed(1)}%
+                  </Badge>
+                </div>
               </div>
             </div>
-          </div>
+          </FeatureGate>
           
           {/* Column 9: Min Data */}
-          <div className="col-span-1">
-            <NumberInput
-              value={minSamples}
-              onChange={setMinSamples}
-              min={0}
-              max={50}
-              label="Min Data"
-            />
-          </div>
+          <FeatureGate
+            feature="advancedFilters"
+            requiredPlan="pro"
+            showUpgrade={false}
+            fallback={
+              <div className="col-span-1">
+                <div className="space-y-2 opacity-50">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Min Data <Badge variant="outline" className="ml-1 text-xs">Pro</Badge>
+                  </Label>
+                  <input
+                    type="number"
+                    value={0}
+                    disabled
+                    className="w-full px-2 py-1 text-xs border rounded-md bg-gray-100 text-center font-mono h-10"
+                  />
+                </div>
+              </div>
+            }
+          >
+            <div className="col-span-1">
+              <NumberInput
+                value={minSamples}
+                onChange={setMinSamples}
+                min={0}
+                max={50}
+                label="Min Data"
+              />
+            </div>
+          </FeatureGate>
           
           {/* Column 10: Search (expands to fill remaining space) */}
           <div className="col-span-2 space-y-2">

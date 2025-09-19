@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { RealTimeDataMonitor } from "./realTimeDataMonitor";
@@ -64,13 +67,9 @@ app.use((req, res, next) => {
   const dataMonitor = RealTimeDataMonitor.getInstance();
   dataMonitor.startMonitoring(60000); // Monitor every 60 seconds
 
-  const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    console.log(`🚀 SHARP SHOT LAUNCH-READY SERVER: http://0.0.0.0:${port}`);
+  const port = process.env.PORT || 3001;
+  server.listen(port, () => {
+    console.log(`🚀 SHARP SHOT LAUNCH-READY SERVER: http://localhost:${port}`);
     console.log(`📊 Real-time data monitoring: ACTIVE`);
     console.log(`🎯 Zero tolerance for stale data`);
     log(`serving on port ${port}`);
