@@ -13,14 +13,14 @@ export function ActiveFilterChips() {
   } = useTerminalFilters();
 
   // Determine which filters are active (non-default)
-  const hasActiveFilters = 
+  const hasActiveFilters =
     leagues.length > 0 ||
     markets.length > 0 ||
     propTypes.length > 0 ||
     ouMode !== 'all' ||
     timing !== 'all' ||
-    oddsMin !== -100000 ||
-    oddsMax !== 100000 ||
+    oddsMin !== -500 ||
+    oddsMax !== 500 ||
     evThreshold > 0 ||
     minSamples > 0 ||
     myBook !== null ||
@@ -122,13 +122,13 @@ export function ActiveFilterChips() {
         )}
         
         {/* Odds range chip */}
-        {(oddsMin !== -100000 || oddsMax !== 100000) && (
+        {(oddsMin !== -500 || oddsMax !== 500) && (
           <Badge variant="secondary" className="gap-1 text-xs">
             Odds: {oddsMin} to {oddsMax}
             <button
               onClick={() => {
-                setOddsMin(-100000);
-                setOddsMax(100000);
+                setOddsMin(-500);
+                setOddsMax(500);
               }}
               className="ml-1 hover:text-destructive"
               aria-label="Remove odds range filter"
@@ -179,7 +179,21 @@ export function ActiveFilterChips() {
             </button>
           </Badge>
         )}
-        
+
+        {/* My Book chip */}
+        {myBook && myBook !== 'none' && (
+          <Badge variant="secondary" className="gap-1 text-xs">
+            My Book: {myBook}
+            <button
+              onClick={() => setMyBook(null)}
+              className="ml-1 hover:text-destructive"
+              aria-label="Remove My Book filter"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </Badge>
+        )}
+
         {/* Clear all button */}
         {hasActiveFilters && (
           <Button

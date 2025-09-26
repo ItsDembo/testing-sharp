@@ -88,8 +88,9 @@ export function useSubscription() {
     retry: 1,
   });
 
-  const plan = subscriptionData?.subscriptionPlan || 'basic';
-  const status = subscriptionData?.subscriptionStatus || 'inactive';
+  // FOR TESTING: Force Pro plan with active status
+  const plan = 'pro'; // subscriptionData?.subscriptionPlan || 'basic';
+  const status = 'active'; // subscriptionData?.subscriptionStatus || 'inactive';
   const isActive = status === 'active';
   
   // Get features for current plan

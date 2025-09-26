@@ -84,11 +84,11 @@ export default function LaunchStatusWidget() {
             <span className="font-medium">Demo Access</span>
           </div>
           <div className="text-right">
-            <div className={`font-mono text-sm ${getStatusColor(launchStatus.demoStatus.isActive)}`}>
-              {launchStatus.demoStatus.daysRemaining} days remaining
+            <div className={`font-mono text-sm ${getStatusColor(launchStatus?.demoStatus?.isActive || false)}`}>
+              {launchStatus?.demoStatus?.daysRemaining || 0} days remaining
             </div>
             <div className="text-xs text-gray-600 dark:text-gray-400">
-              {launchStatus.demoStatus.message}
+              {launchStatus?.demoStatus?.message || 'Loading...'}
             </div>
           </div>
         </div>

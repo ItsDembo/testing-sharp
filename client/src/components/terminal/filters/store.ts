@@ -6,19 +6,24 @@ export interface TerminalFiltersState {
   leagues: string[];
   markets: string[];
   propTypes: string[];
+  statTypes: string[];
+  sportsbooks: string[];
   ouMode: 'all' | 'over' | 'under';
   timing: 'all' | 'prematch' | 'live';
-  
+
   // Numeric filters
   oddsMin: number;
   oddsMax: number;
   evThreshold: number;
   minSamples: number;
-  
+
   // Book and search
   myBook: string | null;
   query: string;
-  
+
+  // Display options
+  showLineDiscrepancies: boolean;
+
   // UI state
   dismissedMyBookTip: boolean;
 }
@@ -28,6 +33,8 @@ interface TerminalFiltersActions {
   setLeagues: (leagues: string[]) => void;
   setMarkets: (markets: string[]) => void;
   setPropTypes: (propTypes: string[]) => void;
+  setStatTypes: (statTypes: string[]) => void;
+  setSportsbooks: (sportsbooks: string[]) => void;
   setOuMode: (mode: 'all' | 'over' | 'under') => void;
   setTiming: (timing: 'all' | 'prematch' | 'live') => void;
   setOddsMin: (min: number) => void;
@@ -36,8 +43,9 @@ interface TerminalFiltersActions {
   setMinSamples: (samples: number) => void;
   setMyBook: (book: string | null) => void;
   setQuery: (query: string) => void;
+  setShowLineDiscrepancies: (show: boolean) => void;
   dismissTip: () => void;
-  
+
   // Array helpers
   addLeague: (league: string) => void;
   removeLeague: (league: string) => void;
@@ -45,7 +53,11 @@ interface TerminalFiltersActions {
   removeMarket: (market: string) => void;
   addPropType: (propType: string) => void;
   removePropType: (propType: string) => void;
-  
+  addStatType: (statType: string) => void;
+  removeStatType: (statType: string) => void;
+  addSportsbook: (sportsbook: string) => void;
+  removeSportsbook: (sportsbook: string) => void;
+
   // Reset
   resetAll: () => void;
 }
@@ -54,6 +66,8 @@ const defaultState: TerminalFiltersState = {
   leagues: [],
   markets: [],
   propTypes: [],
+  statTypes: [],
+  sportsbooks: [],
   ouMode: 'all',
   timing: 'all',
   oddsMin: -500,
@@ -62,6 +76,7 @@ const defaultState: TerminalFiltersState = {
   minSamples: 0,
   myBook: null,
   query: '',
+  showLineDiscrepancies: true,
   dismissedMyBookTip: false,
 };
 
@@ -75,6 +90,8 @@ export const useTerminalFilters = create<TerminalFiltersState & TerminalFiltersA
       setLeagues: (leagues) => set({ leagues }),
       setMarkets: (markets) => set({ markets }),
       setPropTypes: (propTypes) => set({ propTypes }),
+      setStatTypes: (statTypes) => set({ statTypes }),
+      setSportsbooks: (sportsbooks) => set({ sportsbooks }),
       setOuMode: (ouMode) => set({ ouMode }),
       setTiming: (timing) => set({ timing }),
       setOddsMin: (oddsMin) => {
@@ -91,6 +108,7 @@ export const useTerminalFilters = create<TerminalFiltersState & TerminalFiltersA
       setMinSamples: (minSamples) => set({ minSamples }),
       setMyBook: (myBook) => set({ myBook }),
       setQuery: (query) => set({ query }),
+      setShowLineDiscrepancies: (showLineDiscrepancies) => set({ showLineDiscrepancies }),
       dismissTip: () => set({ dismissedMyBookTip: true }),
       
       // Array helpers
@@ -112,7 +130,19 @@ export const useTerminalFilters = create<TerminalFiltersState & TerminalFiltersA
       removePropType: (propType) => set((state) => ({
         propTypes: state.propTypes.filter(pt => pt !== propType)
       })),
-      
+      addStatType: (statType) => set((state) => ({
+        statTypes: state.statTypes.includes(statType) ? state.statTypes : [...state.statTypes, statType]
+      })),
+      removeStatType: (statType) => set((state) => ({
+        statTypes: state.statTypes.filter(st => st !== statType)
+      })),
+      addSportsbook: (sportsbook) => set((state) => ({
+        sportsbooks: state.sportsbooks.includes(sportsbook) ? state.sportsbooks : [...state.sportsbooks, sportsbook]
+      })),
+      removeSportsbook: (sportsbook) => set((state) => ({
+        sportsbooks: state.sportsbooks.filter(sb => sb !== sportsbook)
+      })),
+
       // Reset
       resetAll: () => set(defaultState),
     }),
@@ -134,11 +164,16 @@ export const useTerminalFilters = create<TerminalFiltersState & TerminalFiltersA
   )
 );
 
-// Mock data as specified
-export const MOCK_LEAGUES = ['NFL', 'NCAAF', 'NBA', 'NCAAB', 'MLB', 'NHL', 'EPL', 'UFC', 'WNBA', 'MLS'];
-export const MOCK_MARKETS = ['Moneyline', 'Spread', 'Total', 'Team Total', 'Alt Spread', 'Alt Total'];
+// Enhanced filter data for comprehensive functionality
+export const MOCK_LEAGUES = ['NFL', 'NCAAF', 'NBA', 'NCAAB', 'MLB', 'NHL', 'EPL', 'UFC', 'WNBA', 'MLS', 'SOCCER', 'CFL'];
+export const MOCK_MARKETS = ['Moneyline', 'Spread', 'Total', 'Run Line', 'Team Total', 'Alt Spread', 'Alt Total', 'Player Props', 'Team Props', 'Game Props'];
 export const MOCK_PROP_TYPES = ['Player Props', 'Team Props', 'Game Props'];
-export const MOCK_BOOKS = ['DK', 'FD', 'MGM', 'PB', 'CAES', 'WB', 'BR', 'PN', 'SB', 'BX'];
+export const MOCK_STAT_TYPES = ['Over/Under', 'Moneyline', 'Run Line', 'Total Bases', 'Hits', 'RBIs', 'Strikeouts', 'Home Runs'];
+export const MOCK_BOOKS = [
+  'DraftKings', 'FanDuel', 'BetMGM', 'Caesars', 'BetRivers', 'ESPN BET',
+  'Fanatics', 'Bet365', 'Pinnacle', 'Bovada', 'BetOnline', 'William Hill',
+  'MGM', 'SPORTS_INTERACTION', 'SugarHouse', 'BET_365', 'FANATICS'
+];
 
 // Utility functions
 export const formatOddsWithProbability = (odds: number): string => {

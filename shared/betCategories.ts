@@ -224,13 +224,19 @@ export class BetCategorizer {
     };
 
     opportunities.forEach(opp => {
-      let category = this.categorizeBet(opp);
-      
+      // Use server's category field if available, otherwise categorize
+      let category: BetCategory = opp.category || this.categorizeBet(opp);
+
       // Handle player props separately
       if (opp.category === 'player_props' || opp.market === 'Player Props') {
         category = 'player_props';
       }
-      
+
+      // Map server categories to our categories
+      if (category === 'upcoming') {
+        category = 'ev'; // Upcoming bets are typically +EV
+      }
+
       if (stats[category] !== undefined) {
         stats[category]++;
       }

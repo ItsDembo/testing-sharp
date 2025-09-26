@@ -11,16 +11,27 @@ import { FilterBar } from '../components/terminal/filters/FilterBar';
 import { ActiveFilterChips } from '../components/terminal/filters/ActiveFilterChips';
 import { TipCardMyBook } from '../components/terminal/filters/TipCardMyBook';
 import { useTerminalFilters, TerminalFiltersState } from '../components/terminal/filters/store';
-import { NewTerminalTable } from '../components/trading/NewTerminalTable';
+import { TerminalTable } from '../components/trading/TerminalTable';
 import { BettingOpportunity } from '../../../shared/schema';
 import { CategoryTabs, CategoryBadge } from '../components/CategoryTabs';
 import { BetCategorizer, type BetCategory } from '../../../shared/betCategories';
 import { CacheService } from '@/services/cacheService';
 import LaunchStatusWidget from '../components/LaunchStatusWidget';
-import { EVCalculator } from '../components/calculators/EVCalculator';
+import { EVCalculator } from '../components/terminal/EVCalculator';
 import { ArbitrageCalculator } from '../components/calculators/ArbitrageCalculator';
+
+interface SavedBet {
+  id: string;
+  game: string;
+  selection: string;
+  market: string;
+  odds: number;
+  book: string;
+  ev: number;
+  timestamp: Date;
+}
 import { MiddlingCalculator } from '../components/calculators/MiddlingCalculator';
-import { AllProfitableCalculator } from '../components/calculators/AllProfitableCalculator';
+// AllProfitableCalculator removed - using canonical functions instead
 import { FeatureGate } from '../components/FeatureGate';
 import { ExportButton } from '../components/ExportButton';
 
@@ -34,17 +45,99 @@ const AVAILABLE_LEAGUES = [
   'nfl', 'nba', 'mlb', 'nhl', 'ncaaf', 'ncaab', 'soccer', 'tennis', 'golf', 'mma', 'boxing'
 ];
 
+// Proper EV calculation using correct ROI formula (use RAW probability; do not clamp here)
+const calculateAccurateEV = (myOdds: number, trueProbability: number): number => {
+  try {
+    if (myOdds === undefined || myOdds === null || isNaN(myOdds)) return NaN;
+    if (trueProbability === undefined || trueProbability === null || isNaN(trueProbability)) return NaN;
+    // Expect probability in [0,1]
+    if (trueProbability < 0 || trueProbability > 1) return NaN;
+
+    // Convert American odds to net payout per $1 staked
+    const netPayout = myOdds > 0 ? (myOdds / 100) : (100 / Math.abs(myOdds));
+
+    // EV formula: P(win) * net_payout - P(lose) * 1
+    const ev = (trueProbability * netPayout) - (1 - trueProbability);
+    return ev * 100;
+
+  } catch (error) {
+    console.warn('Error calculating EV:', error);
+    return NaN;
+  }
+};
+
+// Calculate no-vig probability from two-sided market (requires pair for SAME book/line/timestamp window)
+const calculateNoVigProbability = (side1Odds: number, side2Odds: number): number => {
+  try {
+    const toImpliedProb = (americanOdds: number): number => (americanOdds > 0)
+      ? 100 / (americanOdds + 100)
+      : Math.abs(americanOdds) / (Math.abs(americanOdds) + 100);
+
+    const prob1 = toImpliedProb(side1Odds);
+    const prob2 = toImpliedProb(side2Odds);
+    const totalProb = prob1 + prob2;
+    if (totalProb <= 0) return NaN;
+    return prob1 / totalProb;
+  } catch (error) {
+    console.warn('Error calculating no-vig probability:', error);
+    return NaN;
+  }
+};
+
+// Unit test functions for EV calculation
+const runEVSanityChecks = () => {
+  console.log('🧪 Running EV Sanity Checks...');
+
+  // Test 1: Break-even probability should give EV ≈ 0
+  const breakEvenProb = 100 / (110 + 100); // 0.47619 for +110
+  const ev1 = calculateAccurateEV(110, breakEvenProb);
+  console.log(`Test 1 - Break-even +110: EV = ${ev1.toFixed(2)}% (should be ≈0%)`);
+
+  // Test 2: 60% probability at +110 should give EV ≈ +21.8%
+  const ev2 = calculateAccurateEV(110, 0.60);
+  console.log(`Test 2 - 60% at +110: EV = ${ev2.toFixed(1)}% (should be ≈21.8%)`);
+
+  // Test 3: 54% probability at +110 should give EV ≈ +13.4%
+  const ev3 = calculateAccurateEV(110, 0.54);
+  console.log(`Test 3 - 54% at +110: EV = ${ev3.toFixed(1)}% (should be ≈13.4%)`);
+
+  // Test 4: Negative odds test
+  const ev4 = calculateAccurateEV(-110, 0.60);
+  console.log(`Test 4 - 60% at -110: EV = ${ev4.toFixed(1)}% (should be ≈9.1%)`);
+};
+
+// Run tests in development
+if (process.env.NODE_ENV === 'development') {
+  runEVSanityChecks();
+}
+
+// Add test function to window for browser console testing
+if (typeof window !== 'undefined') {
+  (window as any).testEV = (odds: number, prob: number) => {
+    const result = calculateAccurateEV(odds, prob);
+    console.log(`Test: ${(prob * 100).toFixed(1)}% at ${odds > 0 ? '+' : ''}${odds} = ${result.toFixed(2)}% EV`);
+    return result;
+  };
+
+  (window as any).testNoVig = (odds1: number, odds2: number) => {
+    const result = calculateNoVigProbability(odds1, odds2);
+    console.log(`No-vig: ${odds1 > 0 ? '+' : ''}${odds1} vs ${odds2 > 0 ? '+' : ''}${odds2} = ${(result * 100).toFixed(1)}%`);
+    return result;
+  };
+}
+
 // Apply comprehensive filter system
 const applyFilters = (opportunities: BettingOpportunity[], filters: TerminalFiltersState): BettingOpportunity[] => {
   return opportunities.filter(opp => {
     // League filter
     if (filters.leagues.length > 0) {
       const league = opp.event?.sport || opp.sport || opp.league || '';
-      if (!filters.leagues.some(selected => league.toLowerCase().includes(selected.toLowerCase()))) {
+      const normalizedLeague = league.toUpperCase();
+      if (!filters.leagues.some(selected => normalizedLeague === selected.toUpperCase())) {
         return false;
       }
     }
-    
+
     // Market filter
     if (filters.markets.length > 0) {
       const market = opp.market?.type || '';
@@ -112,10 +205,38 @@ const applyFilters = (opportunities: BettingOpportunity[], filters: TerminalFilt
       }
     }
     
-    // My Book filter - if myBook is selected, only show opportunities from that book
-    if (filters.myBook) {
-      const oppBook = opp.myPrice?.book || opp.sportsbook || '';
-      if (!oppBook.toLowerCase().includes(filters.myBook.toLowerCase())) {
+    // My Book filter - personalize projection and EV based on selected book
+    if (filters.myBook && filters.myBook !== 'none') {
+      const target = (filters.myBook || '').toLowerCase();
+      // Prefer oddsComparison for full metadata
+      const fromComparison = opp.oddsComparison?.find(o => (o.sportsbook || '').toLowerCase().includes(target));
+      const fromField = opp.fieldPrices?.find(p => (p.book || '').toLowerCase().includes(target));
+      const chosenOdds = fromComparison?.odds ?? fromField?.odds;
+      const chosenBook = fromComparison?.sportsbook ?? fromField?.book;
+
+      if (typeof chosenOdds === 'number' && chosenBook) {
+        // Update projection price used for display AND EV
+        opp.myPrice = { odds: chosenOdds, book: chosenBook } as any;
+        (opp as any).mainBookOdds = chosenOdds;
+
+        // Recalculate EV with SAME displayed price using RAW probability (not clamped)
+        const meta = (opp as any)._meta || {};
+        const rawProb = (opp as any)._debug?.rawProb;
+        if (!meta.suppressEV && typeof rawProb === 'number') {
+          const ev = calculateAccurateEV(chosenOdds, rawProb);
+          (opp as any).evPercent = isNaN(ev) ? undefined : ev;
+          (opp as any).ev = (opp as any).evPercent;
+        } else {
+          (opp as any).evPercent = undefined;
+          (opp as any).ev = undefined;
+        }
+      }
+    }
+
+    // Min data points filter
+    if (filters.minSamples > 0) {
+      const dataPoints = (opp.fieldPrices?.length || 0) + 1; // +1 for myPrice
+      if (dataPoints < filters.minSamples) {
         return false;
       }
     }
@@ -124,92 +245,265 @@ const applyFilters = (opportunities: BettingOpportunity[], filters: TerminalFilt
   });
 };
 
-// Transform backend data to new table format
-const transformOpportunityData = (backendData: any): BettingOpportunity[] => {
+// Transform backend data to comprehensive table format
+const transformOpportunityData = (backendData: any): any[] => {
   // Handle different API response formats
-  const dataArray = Array.isArray(backendData) ? backendData : 
+  const dataArray = Array.isArray(backendData) ? backendData :
                    backendData?.opportunities ? backendData.opportunities :
                    backendData?.data ? backendData.data : [];
-  
+
   if (!Array.isArray(dataArray)) {
     console.warn('Expected array but got:', typeof dataArray, dataArray);
     return [];
   }
-  
-  return dataArray.map(item => ({
-    id: item.id || `${item.game}-${item.market}-${Date.now()}`,
-    event: {
-      home: item.game?.split(' vs ')[1] || item.homeTeam || 'Team B',
-      away: item.game?.split(' vs ')[0] || item.awayTeam || 'Team A',
+
+  const FRESHNESS_WINDOW_MS = 10000; // 10s for live markets
+  const nowMs = Date.now();
+
+  return dataArray.map(item => {
+    // 1) Projection price (this is ALSO the price we use for EV)
+    const projection = (() => {
+      const mainOdds = (typeof item.mainBookOdds === 'number') ? {
+        odds: item.mainBookOdds,
+        sportsbook: item.mainSportsbook || item.oddsComparison?.[0]?.sportsbook || 'Unknown',
+        lastUpdated: item.lastUpdated
+      } : null;
+      const firstOC = item.oddsComparison && item.oddsComparison[0] ? item.oddsComparison[0] : null;
+      const choice: any = mainOdds ?? firstOC ?? null;
+      return {
+        odds: (choice && typeof choice.odds === 'number') ? choice.odds : 100,
+        sportsbook: choice?.sportsbook || 'Unknown',
+        lastUpdated: choice?.lastUpdated || item.lastUpdated || null
+      };
+    })();
+
+    // 2) Robust probability parsing with source tracking
+    let probSource: 'model' | 'implied' | 'novig' | 'fallback' = 'fallback';
+    let rawProb: number | null = null; // decimal 0..1
+
+    const parseProb = (val: any): number | null => {
+      if (val === undefined || val === null) return null;
+      if (typeof val === 'string') {
+        const trimmed = val.trim();
+        if (trimmed.endsWith('%')) {
+          const num = parseFloat(trimmed.replace('%',''));
+          return isNaN(num) ? null : num / 100;
+        }
+        const num = Number(trimmed);
+        if (isNaN(num)) return null;
+        if (num > 1.000001) return num / 100;
+        if (num >= 0 && num <= 1) return num;
+        return null;
+      }
+      if (typeof val === 'number') {
+        if (val > 1.000001) return val / 100;
+        if (val >= 0 && val <= 1) return val;
+        return null;
+      }
+      return null;
+    };
+
+    const hitProb = parseProb(item.hit);
+    if (hitProb !== null) {
+      rawProb = hitProb; probSource = 'model';
+    } else {
+      const impProb = parseProb(item.impliedProbability);
+      if (impProb !== null) { rawProb = impProb; probSource = 'implied'; }
+    }
+
+    // No-vig: require same line & fresh snapshot; prefer entries with team1Odds & team2Odds
+    if (rawProb === null && Array.isArray(item.oddsComparison)) {
+      const oc = item.oddsComparison as any[];
+      // Prefer one record with both sides
+      const bothSides = oc.find(e => Number.isFinite(e.team1Odds) && Number.isFinite(e.team2Odds) && (item.line === undefined || e.line === item.line));
+      const freshEnough = (ts?: string) => !ts || (nowMs - new Date(ts).getTime() <= FRESHNESS_WINDOW_MS);
+      if (bothSides && freshEnough(bothSides.lastUpdated)) {
+        const p = calculateNoVigProbability(bothSides.team1Odds, bothSides.team2Odds);
+        if (!isNaN(p)) { rawProb = p; probSource = 'novig'; }
+      }
+      // Else skip cross-book pairing to avoid distortion
+    }
+
+    if (rawProb === null) { rawProb = 0.5; probSource = 'fallback'; }
+
+    // 3) Display probability (clamped only for UI)
+    const displayProb = Math.max(0.001, Math.min(0.999, rawProb));
+
+    // 4) Suppress EV in these cases
+    let suppressEV = false;
+
+    // a) Fallback probability → do not fabricate edges
+    if (probSource === 'fallback') suppressEV = true;
+
+    // b) Integer push-prone lines for spreads/totals
+    const numericLine = parseFloat(item.line);
+    const isIntegerLine = Number.isFinite(numericLine) && Math.abs(numericLine - Math.round(numericLine)) < 1e-9;
+    const marketStr = (item.market || '').toString().toLowerCase();
+    const pushMarkets = ['total', 'spread', 'run line', 'team total'];
+    const isPushSensitive = pushMarkets.some(m => marketStr.includes(m));
+    if (isIntegerLine && isPushSensitive) suppressEV = true;
+
+    // c) Live markets must be fresh
+    const isLive = (item.truthStatus === 'LIVE') || (item.event?.status === 'live');
+    if (isLive && projection.lastUpdated) {
+      const age = nowMs - new Date(projection.lastUpdated).getTime();
+      if (age > FRESHNESS_WINDOW_MS) suppressEV = true;
+    }
+
+    // 5) EV using the SAME projection price and RAW probability
+    let calculatedEV: number | undefined = undefined;
+    if (!suppressEV && rawProb !== null) {
+      const ev = calculateAccurateEV(projection.odds, rawProb);
+      if (!isNaN(ev)) calculatedEV = ev;
+    }
+
+    if (process.env.NODE_ENV === 'development' && Math.random() < 0.05) {
+      if (displayProb !== rawProb) {
+        console.log('[prob-clamp] raw=', rawProb, 'display=', displayProb);
+      }
+      if (suppressEV) {
+        console.log('[ev-suppressed]', { reason: { probSource, isIntegerLine, isLive }, projection });
+      }
+    }
+
+    // 6) Return normalized row
+    return {
+      id: item.id || `${item.game}-${item.market}-${Date.now()}`,
       sport: item.sport || 'unknown',
-      league: item.sport || 'unknown',
-      startTime: item.gameTime || new Date().toISOString(),
-      status: item.truthStatus === 'LIVE' ? 'live' : 'prematch'
-    },
-    market: {
-      type: item.market || 'Moneyline',
-      side: item.betType || item.line || 'home',
-      line: typeof item.line === 'string' && item.line.includes('.') ? parseFloat(item.line) : undefined,
-      player: item.playerName,
-      value: item.line
-    },
-    myPrice: {
-      odds: item.mainBookOdds || item.oddsComparison?.[0]?.odds || 100,
-      book: item.mainSportsbook || item.oddsComparison?.[0]?.sportsbook || 'Unknown'
-    },
-    fieldPrices: (() => {
-      const allOdds = item.oddsComparison || [];
-      const myBook = item.mainSportsbook || item.oddsComparison?.[0]?.sportsbook;
-      
-      // Filter out the book that's shown in My Odds and take up to 8 field odds
-      return allOdds
-        .filter((odds: any) => odds.sportsbook !== myBook)
-        .slice(0, 8)
-        .map((odds: any) => ({
-          book: odds.sportsbook || 'Unknown',
-          odds: odds.odds || 100
-        }));
-    })(),
-    evPercent: item.ev || 0,
-    fairProbability: item.hit || item.impliedProbability || 0.5,
-    updatedAt: item.lastUpdated || new Date().toISOString(),
-    // Legacy fields for backward compatibility
-    game: item.game,
-    bet: item.bet,
-    sportsbook: item.mainSportsbook,
-    ev: item.ev,
-    category: item.category || 'ev',
-    sport: item.sport,
-    league: item.sport,
-    gameTime: item.gameTime,
-    lastUpdated: item.lastUpdated,
-    playerName: item.playerName,
-    propType: item.propType,
-    propValue: item.propValue,
-    propDescription: item.propDescription
-  }));
+      game: item.game || 'Unknown Event',
+      market: item.market || 'Moneyline',
+      betType: item.betType || 'Standard',
+      line: item.line || '',
+      mainBookOdds: projection.odds,
+      ev: calculatedEV,
+      evPercent: calculatedEV,
+      hit: displayProb,
+      gameTime: item.gameTime || 'TBD',
+      confidence: item.confidence || 'medium',
+      category: item.category || 'ev',
+      impliedProbability: displayProb,
+      truthStatus: item.truthStatus || 'UPCOMING',
+      oddsComparison: item.oddsComparison || [],
+      updatedAt: item.lastUpdated || new Date().toISOString(),
+      _debug: {
+        probSource,
+        rawProb,
+        projection,
+      },
+      event: {
+        home: item.game?.split(' vs ')[1] || item.homeTeam || 'Team B',
+        away: item.game?.split(' vs ')[0] || item.awayTeam || 'Team A',
+        sport: item.sport || 'unknown',
+        league: item.sport || 'unknown',
+        startTime: item.gameTime || new Date().toISOString(),
+        status: item.truthStatus === 'LIVE' ? 'live' : 'prematch'
+      },
+      myPrice: {
+        odds: projection.odds,
+        book: projection.sportsbook
+      },
+      fieldPrices: (() => {
+        const allOdds = item.oddsComparison || [];
+        const myBook = projection.sportsbook;
+        return allOdds
+          .filter((odds: any) => odds.sportsbook !== myBook)
+          .slice(0, 8)
+          .map((odds: any) => ({
+            book: odds.sportsbook || 'Unknown',
+            odds: odds.odds || 100
+          }));
+      })(),
+      fairProbability: displayProb || 0.5,
+      _meta: {
+        probSource,
+        suppressEV,
+      }
+    };
+  });
 };
 
 export default function TradingTerminal() {
   const [activeCategory, setActiveCategory] = useState<BetCategory>('all');
   const [isPaused, setIsPaused] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [savedBets, setSavedBets] = useState<SavedBet[]>([]);
   const cacheService = CacheService.getInstance();
-  
+
+  // Function to save a bet to "My Book"
+  const saveBetToMyBook = (opportunity: BettingOpportunity) => {
+    const gameString = `${opportunity.event.away} @ ${opportunity.event.home}`;
+
+    const marketString = `${opportunity.market.type} ${opportunity.market.side}${opportunity.market.line ? ` ${opportunity.market.line}` : ''}`;
+
+    const selection = opportunity.market.player || `${opportunity.market.side} ${opportunity.market.line || ''}`;
+
+    const newBet: SavedBet = {
+      id: `${opportunity.id}-${Date.now()}`,
+      game: gameString,
+      selection: selection,
+      market: marketString,
+      odds: opportunity.myPrice.odds || 0,
+      book: opportunity.myPrice.book || 'Unknown Book',
+      ev: opportunity.evPercent || 0,
+      timestamp: new Date()
+    };
+
+    setSavedBets(prev => [...prev, newBet]);
+  };
+
   // Get filter state from store
   const filters = useTerminalFilters();
   
-  // Fetch opportunities from backend
-  const { 
-    data: rawOpportunities = [], 
-    isLoading, 
-    error, 
-    refetch 
+  // Fetch all types of opportunities from backend
+  const {
+    data: upcomingOpportunities = [],
+    isLoading: isLoadingUpcoming,
+    error: upcomingError,
+    refetch: refetchUpcoming
   } = useQuery({
     queryKey: ['/api/betting/upcoming-opportunities'],
     refetchInterval: isPaused ? false : 30000,
     staleTime: 25000
   });
+
+  const {
+    data: liveOpportunities = [],
+    isLoading: isLoadingLive,
+    error: liveError,
+    refetch: refetchLive
+  } = useQuery({
+    queryKey: ['/api/betting/live-opportunities'],
+    refetchInterval: isPaused ? false : 30000,
+    staleTime: 25000
+  });
+
+  const {
+    data: playerPropsData = [],
+    isLoading: isLoadingProps,
+    error: propsError,
+    refetch: refetchProps
+  } = useQuery({
+    queryKey: ['/api/betting/player-props'],
+    refetchInterval: isPaused ? false : 60000, // Slower refresh for props
+    staleTime: 55000
+  });
+
+  // Combine all opportunities
+  const rawOpportunities = React.useMemo(() => {
+    const upcoming = upcomingOpportunities?.opportunities || upcomingOpportunities || [];
+    const live = liveOpportunities?.opportunities || liveOpportunities || [];
+    const props = playerPropsData?.opportunities || playerPropsData || [];
+
+    return [...upcoming, ...live, ...props];
+  }, [upcomingOpportunities, liveOpportunities, playerPropsData]);
+
+  const isLoading = isLoadingUpcoming || isLoadingLive || isLoadingProps;
+  const error = upcomingError || liveError || propsError;
+  const refetch = () => {
+    refetchUpcoming();
+    refetchLive();
+    refetchProps();
+  };
 
   // Transform and filter opportunities
   const opportunities = React.useMemo(() => {
@@ -323,14 +617,15 @@ export default function TradingTerminal() {
                     {/* Tip Card for My Book */}
                     <TipCardMyBook />
 
-                    {/* New Professional Trading Terminal Table */}
-                    <NewTerminalTable 
+                    {/* Professional Trading Terminal Table */}
+                    <TerminalTable
                       opportunities={opportunities}
                       loading={isLoading}
                       error={error?.message}
                       onRowClick={(opportunity) => {
-                        // Handle row click if needed
-                        console.log('Clicked opportunity:', opportunity);
+                        // Save bet to "My Book" when clicked
+                        saveBetToMyBook(opportunity);
+                        console.log('Saved bet to My Book:', opportunity);
                       }}
                     />
                   </div>
@@ -339,14 +634,9 @@ export default function TradingTerminal() {
 
               {/* Calculator Tab */}
               <TabsContent value="calculator" className="min-h-screen m-0 p-0 flex-1">
-                <div className="p-8 space-y-6">
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                    <EVCalculator />
-                    <ArbitrageCalculator />
-                  </div>
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                    <MiddlingCalculator />
-                    <AllProfitableCalculator />
+                <div className="p-8">
+                  <div className="max-w-md mx-auto">
+                    <EVCalculator savedBets={savedBets} />
                   </div>
                 </div>
               </TabsContent>

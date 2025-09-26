@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Calculator, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
+import { calculateEV, safeCalculateEV } from '@shared/lib/evCalculations';
 
 interface EVCalculatorProps {
   className?: string;
@@ -33,18 +34,17 @@ export function EVCalculator({ className }: EVCalculatorProps) {
       return null;
     }
 
-    // Convert American odds to decimal
-    let decimalOdds: number;
-    if (oddsNum > 0) {
-      decimalOdds = (oddsNum / 100) + 1;
-    } else {
-      decimalOdds = (100 / Math.abs(oddsNum)) + 1;
+    // Use canonical EV calculation
+    const evResult = safeCalculateEV(oddsNum, fairProbNum, stakeNum);
+
+    if (evResult.error || evResult.evPercent === null) {
+      return null;
     }
 
-    const impliedProbability = 1 / decimalOdds;
-    const ev = (fairProbNum * (decimalOdds - 1)) - (1 - fairProbNum);
-    const evPercent = ev * 100;
-    const expectedReturn = stakeNum * ev;
+    const evPercent = evResult.evPercent!;
+    const ev = evResult.evDollars! / stakeNum;
+    const expectedReturn = evResult.evDollars!;
+    const impliedProbability = evResult.impliedProbability!;
 
     let recommendation: EVResult['recommendation'];
     if (evPercent >= 5) recommendation = 'strong-bet';
@@ -84,28 +84,28 @@ export function EVCalculator({ className }: EVCalculatorProps) {
 
   return (
     <Card className={className}>
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center space-x-2 text-lg">
           <Calculator className="h-5 w-5 text-[#D8AC35]" />
-          <span>Expected Value Calculator</span>
+          <span>EV Calculator</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Input Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="odds">American Odds</Label>
+      <CardContent className="space-y-4">
+        {/* Input Section - Simplified */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="space-y-1">
+            <Label htmlFor="odds" className="text-xs text-muted-foreground">Odds</Label>
             <Input
               id="odds"
               type="number"
               placeholder="-110"
               value={odds}
               onChange={(e) => setOdds(e.target.value)}
-              className="font-mono"
+              className="font-mono text-sm h-8"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="fairProb">Fair Probability (%)</Label>
+          <div className="space-y-1">
+            <Label htmlFor="fairProb" className="text-xs text-muted-foreground">Fair %</Label>
             <Input
               id="fairProb"
               type="number"
@@ -115,11 +115,11 @@ export function EVCalculator({ className }: EVCalculatorProps) {
               step="0.1"
               value={fairProb}
               onChange={(e) => setFairProb(e.target.value)}
-              className="font-mono"
+              className="font-mono text-sm h-8"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="stake">Stake ($)</Label>
+          <div className="space-y-1">
+            <Label htmlFor="stake" className="text-xs text-muted-foreground">Stake</Label>
             <Input
               id="stake"
               type="number"
@@ -128,43 +128,26 @@ export function EVCalculator({ className }: EVCalculatorProps) {
               step="1"
               value={stake}
               onChange={(e) => setStake(e.target.value)}
-              className="font-mono"
+              className="font-mono text-sm h-8"
             />
           </div>
         </div>
 
-        {/* Results Section */}
+        {/* Results Section - Simplified */}
         {result && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
-                <div className="text-sm text-gray-600 dark:text-gray-400">Implied Prob</div>
-                <div className="text-lg font-mono font-semibold">
-                  {result.impliedProbability.toFixed(1)}%
-                </div>
-              </div>
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
-                <div className="text-sm text-gray-600 dark:text-gray-400">Fair Prob</div>
-                <div className="text-lg font-mono font-semibold">
-                  {result.fairProbability.toFixed(1)}%
-                </div>
-              </div>
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
-                <div className="text-sm text-gray-600 dark:text-gray-400">EV%</div>
-                <div className={`text-lg font-mono font-semibold flex items-center justify-center space-x-1 ${
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-muted/50 rounded-lg p-3 text-center">
+                <div className="text-xs text-muted-foreground">EV%</div>
+                <div className={`text-lg font-mono font-bold ${
                   result.evPercent >= 0 ? 'text-green-600' : 'text-red-600'
                 }`}>
-                  {result.evPercent >= 0 ? (
-                    <TrendingUp className="h-4 w-4" />
-                  ) : (
-                    <TrendingDown className="h-4 w-4" />
-                  )}
-                  <span>{result.evPercent >= 0 ? '+' : ''}{result.evPercent.toFixed(2)}%</span>
+                  {result.evPercent >= 0 ? '+' : ''}{result.evPercent.toFixed(2)}%
                 </div>
               </div>
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
-                <div className="text-sm text-gray-600 dark:text-gray-400">Expected Return</div>
-                <div className={`text-lg font-mono font-semibold ${
+              <div className="bg-muted/50 rounded-lg p-3 text-center">
+                <div className="text-xs text-muted-foreground">Expected Return</div>
+                <div className={`text-lg font-mono font-bold ${
                   result.expectedReturn >= 0 ? 'text-green-600' : 'text-red-600'
                 }`}>
                   ${result.expectedReturn >= 0 ? '+' : ''}{result.expectedReturn.toFixed(2)}
@@ -173,23 +156,10 @@ export function EVCalculator({ className }: EVCalculatorProps) {
             </div>
 
             {/* Recommendation */}
-            <div className="flex items-center justify-center space-x-3">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Recommendation:</span>
+            <div className="text-center">
               <Badge className={getRecommendationColor(result.recommendation)}>
                 {getRecommendationText(result.recommendation)}
               </Badge>
-            </div>
-
-            {/* Explanation */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-              <div className="flex items-start space-x-2">
-                <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                <div className="text-sm text-blue-800 dark:text-blue-200">
-                  <strong>How it works:</strong> Expected Value (EV) compares the fair probability of an outcome 
-                  to the implied probability from the odds. Positive EV indicates a profitable bet over time, 
-                  while negative EV suggests the bet favors the sportsbook.
-                </div>
-              </div>
             </div>
           </div>
         )}

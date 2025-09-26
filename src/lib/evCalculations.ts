@@ -137,30 +137,23 @@ export function calculateEVPercentage(impliedProbability: number, americanOdds: 
   return (evDollar / stake) * 100;
 }
 
+// Import canonical odds conversion functions
+import { decimalToAmerican, americanToImpliedProb as canonicalAmericanToImpliedProb } from '../../shared/lib/oddsConversion';
+
 /**
  * Convert decimal odds to American odds
- * @param decimalOdds - Decimal odds (e.g., 2.5, 1.8)
- * @returns American odds (+150, -125, etc.)
+ * @deprecated Use decimalToAmerican from @shared/lib/oddsConversion
  */
-export function decimalToAmerican(decimalOdds: number): number {
-  if (decimalOdds >= 2.0) {
-    return Math.round((decimalOdds - 1) * 100);
-  } else {
-    return Math.round(-100 / (decimalOdds - 1));
-  }
+export function decimalToAmericanLegacy(decimalOdds: number): number {
+  return decimalToAmerican(decimalOdds);
 }
 
 /**
  * Calculate implied probability from American odds
- * @param americanOdds - American odds (+130, -150, etc.)
- * @returns Implied probability as decimal (0-1)
+ * @deprecated Use americanToImpliedProb from @shared/lib/oddsConversion
  */
 export function calculateImpliedProbability(americanOdds: number): number {
-  if (americanOdds > 0) {
-    return 100 / (americanOdds + 100);
-  } else {
-    return Math.abs(americanOdds) / (Math.abs(americanOdds) + 100);
-  }
+  return canonicalAmericanToImpliedProb(americanOdds);
 }
 
 /**

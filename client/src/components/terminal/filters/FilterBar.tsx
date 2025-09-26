@@ -1,5 +1,5 @@
-import { useState, useCallback, useMemo } from 'react';
-import { Search, RotateCcw, Check, BookOpen, ChevronDown } from 'lucide-react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { Search, RotateCcw, Check, BookOpen, ChevronDown, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,16 +9,17 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
-import { useTerminalFilters, MOCK_LEAGUES, MOCK_MARKETS, MOCK_PROP_TYPES, MOCK_BOOKS, formatOddsWithProbability } from './store';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useTerminalFilters, MOCK_LEAGUES, MOCK_MARKETS, MOCK_PROP_TYPES, MOCK_STAT_TYPES, MOCK_BOOKS, formatOddsWithProbability } from './store';
 import { FeatureGate, useFeatureAccess } from '@/components/FeatureGate';
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
-  useState(() => {
+  useEffect(() => {
     const handler = setTimeout(() => setDebouncedValue(value), delay);
     return () => clearTimeout(handler);
-  });
+  }, [value, delay]);
 
   return debouncedValue;
 }
@@ -139,10 +140,10 @@ function NumberInput({ value, onChange, min = 0, max = 50, step = 1, label }: Nu
 
 export function FilterBar() {
   const {
-    leagues, markets, propTypes, ouMode, timing,
-    oddsMin, oddsMax, evThreshold, minSamples, myBook, query,
-    setLeagues, setMarkets, setPropTypes, setOuMode, setTiming,
-    setOddsMin, setOddsMax, setEvThreshold, setMinSamples, setMyBook, setQuery,
+    leagues, markets, propTypes, statTypes, sportsbooks, ouMode, timing,
+    oddsMin, oddsMax, evThreshold, minSamples, myBook, query, showLineDiscrepancies,
+    setLeagues, setMarkets, setPropTypes, setStatTypes, setSportsbooks, setOuMode, setTiming,
+    setOddsMin, setOddsMax, setEvThreshold, setMinSamples, setMyBook, setQuery, setShowLineDiscrepancies,
     resetAll
   } = useTerminalFilters();
 
@@ -155,44 +156,53 @@ export function FilterBar() {
   };
 
   return (
-    <div 
+    <div
       className="sticky top-16 z-20 bg-background/95 backdrop-blur-sm border-b"
       data-testid="filter-bar"
     >
-      <div className="px-4 py-4">
-        {/* 12-Column Grid Layout */}
-        <div className="grid grid-cols-12 gap-3 items-end min-h-[56px]">
-          
-          {/* Column 1-3: My Book (Primary emphasis) */}
-          <div className="col-span-3 space-y-2">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              My Book
-            </Label>
-            <div data-testid="my-book-select">
-              <Select value={myBook || 'none'} onValueChange={(value) => setMyBook(value === 'none' ? null : value)}>
-                <SelectTrigger className="h-10 rounded-xl border-2 border-primary/20 focus:border-primary bg-primary/5">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="h-4 w-4 text-primary" />
-                    <SelectValue placeholder="Select Sportsbook" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None Selected</SelectItem>
-                  {MOCK_BOOKS.map((book) => (
-                    <SelectItem key={book} value={book}>
-                      {book}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+      <div className="px-4 py-3">
+        {/* Bet Category Tabs */}
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-border/30">
+          <div className="flex items-center gap-1">
+            <div className="flex items-center bg-blue-500 text-white rounded-lg px-3 py-2">
+              <span className="text-sm font-medium">All Bets</span>
+              <span className="ml-2 text-xs bg-white/20 px-2 py-0.5 rounded">124</span>
+            </div>
+            <div className="flex items-center text-muted-foreground hover:text-foreground rounded-lg px-3 py-2 cursor-pointer">
+              <span className="text-sm font-medium">+EV</span>
+              <span className="ml-2 text-xs bg-green-500/20 text-green-600 px-2 py-0.5 rounded">96</span>
+            </div>
+            <div className="flex items-center text-muted-foreground hover:text-foreground rounded-lg px-3 py-2 cursor-pointer">
+              <span className="text-sm font-medium">Arbitrage</span>
+              <span className="ml-2 text-xs bg-orange-500/20 text-orange-600 px-2 py-0.5 rounded">18</span>
+            </div>
+            <div className="flex items-center text-muted-foreground hover:text-foreground rounded-lg px-3 py-2 cursor-pointer">
+              <span className="text-sm font-medium">Middling</span>
+              <span className="ml-2 text-xs bg-purple-500/20 text-purple-600 px-2 py-0.5 rounded">8</span>
+            </div>
+            <div className="flex items-center text-muted-foreground hover:text-foreground rounded-lg px-3 py-2 cursor-pointer">
+              <span className="text-sm font-medium">Props</span>
+              <span className="ml-2 text-xs bg-blue-500/20 text-blue-600 px-2 py-0.5 rounded">2</span>
             </div>
           </div>
-          
-          {/* Column 4-6: League */}
-          <div className="col-span-3 space-y-2">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              League
-            </Label>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="text-xs font-medium">
+              Export
+            </Button>
+            <Button variant="outline" size="sm" className="text-xs font-medium">
+              PAUSE
+            </Button>
+            <Button variant="outline" size="sm" className="text-xs font-medium">
+              REFRESH
+            </Button>
+          </div>
+        </div>
+
+        {/* Compact Filter Row */}
+        <div className="flex items-center gap-4 mb-4 flex-wrap">
+          {/* League */}
+          <div className="flex items-center gap-2">
+            <Label className="text-xs font-semibold text-muted-foreground whitespace-nowrap">League</Label>
             <MultiSelect
               options={MOCK_LEAGUES}
               selected={leagues}
@@ -201,96 +211,150 @@ export function FilterBar() {
               label="Leagues"
             />
           </div>
-          
-          {/* Column 7-8: Market */}
-          <div className="col-span-2 space-y-2">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Market
-            </Label>
+
+          {/* Stat Type */}
+          <div className="flex items-center gap-2">
+            <Label className="text-xs font-semibold text-muted-foreground whitespace-nowrap">Stat Type</Label>
             <MultiSelect
-              options={MOCK_MARKETS}
-              selected={markets}
-              onSelectionChange={setMarkets}
-              placeholder="All Markets"
-              label="Markets"
+              options={MOCK_STAT_TYPES}
+              selected={statTypes}
+              onSelectionChange={setStatTypes}
+              placeholder="All Types"
+              label="Stat Types"
             />
           </div>
-          
-          {/* Column 9-10: Prop Type */}
-          <div className="col-span-2 space-y-2">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Prop Type
-            </Label>
-            <MultiSelect
-              options={MOCK_PROP_TYPES}
-              selected={propTypes}
-              onSelectionChange={setPropTypes}
-              placeholder="All Props"
-              label="Props"
-            />
-          </div>
-          
-          {/* Column 11: O/U */}
-          <div className="col-span-1 space-y-2">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              O/U
-            </Label>
+
+          {/* O/U */}
+          <div className="flex items-center gap-2">
+            <Label className="text-xs font-semibold text-muted-foreground whitespace-nowrap">O/U</Label>
             <ToggleGroup
               type="single"
               value={ouMode}
               onValueChange={(value) => value && setOuMode(value as 'all' | 'over' | 'under')}
-              className="justify-start h-10"
+              className="h-9"
             >
-              <ToggleGroupItem value="all" aria-label="All Over/Under" className="text-xs rounded-l-xl">
-                All
-              </ToggleGroupItem>
-              <ToggleGroupItem value="over" aria-label="Over only" className="text-xs">
-                Over
-              </ToggleGroupItem>
-              <ToggleGroupItem value="under" aria-label="Under only" className="text-xs rounded-r-xl">
-                Under
-              </ToggleGroupItem>
+              <ToggleGroupItem value="all" className="text-xs px-3">All</ToggleGroupItem>
+              <ToggleGroupItem value="over" className="text-xs px-3">Over</ToggleGroupItem>
+              <ToggleGroupItem value="under" className="text-xs px-3">Under</ToggleGroupItem>
             </ToggleGroup>
           </div>
-          
-          {/* Column 12: Timing */}
-          <div className="col-span-1 space-y-2">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Timing
-            </Label>
-            <ToggleGroup
-              type="single"
-              value={timing}
-              onValueChange={(value) => value && setTiming(value as 'all' | 'prematch' | 'live')}
-              className="justify-start h-10"
-            >
-              <ToggleGroupItem value="all" aria-label="All timing" className="text-xs rounded-l-xl">
-                All
-              </ToggleGroupItem>
-              <ToggleGroupItem value="prematch" aria-label="Prematch only" className="text-xs">
-                Pre
-              </ToggleGroupItem>
-              <ToggleGroupItem value="live" aria-label="Live only" className="text-xs rounded-r-xl">
-                Live
-              </ToggleGroupItem>
-            </ToggleGroup>
+
+          {/* Min Data */}
+          <div className="flex items-center gap-2">
+            <Label className="text-xs font-semibold text-muted-foreground whitespace-nowrap">Min Data</Label>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={() => setMinSamples(Math.max(0, minSamples - 1))}
+              >
+                −
+              </Button>
+              <span className="text-sm font-mono w-8 text-center">{minSamples}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={() => setMinSamples(Math.min(50, minSamples + 1))}
+              >
+                +
+              </Button>
+            </div>
           </div>
+
+          {/* Odds Range */}
+          <div className="flex items-center gap-2">
+            <Label className="text-xs font-semibold text-muted-foreground whitespace-nowrap">Odds Range</Label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={oddsMin}
+                onChange={(e) => setOddsMin(parseInt(e.target.value) || -500)}
+                className="w-16 px-2 py-1 text-xs border rounded bg-background text-center font-mono h-8"
+              />
+              <span className="text-xs text-muted-foreground">to</span>
+              <input
+                type="number"
+                value={oddsMax}
+                onChange={(e) => setOddsMax(parseInt(e.target.value) || 500)}
+                className="w-16 px-2 py-1 text-xs border rounded bg-background text-center font-mono h-8"
+              />
+            </div>
+          </div>
+
+          {/* Sportsbooks */}
+          <div className="flex items-center gap-2">
+            <Label className="text-xs font-semibold text-muted-foreground whitespace-nowrap">Sportsbooks</Label>
+            <MultiSelect
+              options={MOCK_BOOKS}
+              selected={sportsbooks}
+              onSelectionChange={setSportsbooks}
+              placeholder="All Books"
+              label="Books"
+            />
+          </div>
+
+          {/* Discrepancies */}
+          <div className="flex items-center gap-2">
+            <Label className="text-xs font-semibold text-muted-foreground whitespace-nowrap">Discrepancies</Label>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="line-discrepancies"
+                checked={showLineDiscrepancies}
+                onCheckedChange={setShowLineDiscrepancies}
+              />
+              <Label htmlFor="line-discrepancies" className="text-xs">Show</Label>
+            </div>
+          </div>
+
+          {/* Reset */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={resetAll}
+            className="text-xs font-medium h-9"
+          >
+            Reset
+          </Button>
+
+          {/* Search */}
+          <div className="flex items-center gap-2 flex-1 min-w-[200px]">
+            <Label className="text-xs font-semibold text-muted-foreground whitespace-nowrap">Search</Label>
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search events, teams, markets..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="pl-9 h-9"
+              />
+            </div>
+          </div>
+
+          {/* Refresh */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-xs font-medium h-9"
+          >
+            <RefreshCw className="h-4 w-4 mr-1" />
+            Refresh
+          </Button>
         </div>
 
-        {/* Row B: Modern Slider Controls */}
-        <div className="grid grid-cols-12 gap-6 items-start mt-6">
-          
-          {/* Column 1-8: Odds Range (70% width) */}
-          <div className="col-span-8 space-y-3">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+        {/* Odds Range and EV Threshold Row */}
+        <div className="flex items-center gap-8 mt-4">
+          {/* Odds Range Slider */}
+          <div className="flex-1">
+            <Label className="text-xs font-semibold text-muted-foreground mb-2 block">
               Odds Range
             </Label>
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div className="relative">
-                {/* Modern Slider Track */}
                 <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <div 
-                    className="absolute h-full bg-gradient-to-r from-[#D8AC35] to-[#F4C842] rounded-full transition-all duration-200 shadow-sm"
+                  <div
+                    className="absolute h-full bg-gradient-to-r from-[#D8AC35] to-[#F4C442] rounded-full transition-all duration-200"
                     style={{
                       left: `${((oddsMin + 500) / 1000) * 100}%`,
                       width: `${(((oddsMax - oddsMin) / 1000) * 100)}%`
@@ -315,34 +379,22 @@ export function FilterBar() {
                   onChange={(e) => setOddsMax(Math.max(parseInt(e.target.value), oddsMin + 50))}
                   className="absolute top-0 left-0 w-full h-2 opacity-0 cursor-pointer"
                 />
-                {/* Custom Knobs */}
-                <div 
-                  className="absolute w-5 h-5 bg-white border-2 border-[#D8AC35] rounded-full shadow-lg cursor-pointer transform -translate-y-1/2 -translate-x-1/2 hover:scale-110 transition-transform"
-                  style={{ left: `${((oddsMin + 500) / 1000) * 100}%`, top: '50%' }}
-                />
-                <div 
-                  className="absolute w-5 h-5 bg-white border-2 border-[#D8AC35] rounded-full shadow-lg cursor-pointer transform -translate-y-1/2 -translate-x-1/2 hover:scale-110 transition-transform"
-                  style={{ left: `${((oddsMax + 500) / 1000) * 100}%`, top: '50%' }}
-                />
               </div>
-              
-              {/* Value Display and Direct Input */}
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
                     value={oddsMin}
                     onChange={(e) => setOddsMin(Math.max(-500, Math.min(parseInt(e.target.value) || -500, oddsMax - 50)))}
-                    className="w-20 px-2 py-1 text-xs border rounded-md bg-background text-center font-mono"
-                    step={50}
+                    className="w-16 px-2 py-1 text-xs border rounded bg-background text-center font-mono"
                   />
                   <span className="text-xs text-muted-foreground">to</span>
                   <input
                     type="number"
                     value={oddsMax}
                     onChange={(e) => setOddsMax(Math.min(500, Math.max(parseInt(e.target.value) || 500, oddsMin + 50)))}
-                    className="w-20 px-2 py-1 text-xs border rounded-md bg-background text-center font-mono"
-                    step={50}
+                    className="w-16 px-2 py-1 text-xs border rounded bg-background text-center font-mono"
                   />
                 </div>
                 <div className="text-xs text-muted-foreground font-mono">
@@ -351,141 +403,44 @@ export function FilterBar() {
               </div>
             </div>
           </div>
-          
-          {/* Column 9-12: EV Threshold (40% width, stacked) */}
-          <FeatureGate
-            feature="advancedFilters"
-            requiredPlan="pro"
-            showUpgrade={false}
-            fallback={
-              <div className="col-span-4 space-y-3">
-                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  EV Threshold <Badge variant="outline" className="ml-2 text-xs">Pro</Badge>
-                </Label>
-                <div className="space-y-3 opacity-50">
-                  <div className="relative w-3/5">
-                    <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                      <div className="absolute h-full bg-gray-400 rounded-full w-0" />
-                    </div>
-                    <div className="absolute w-5 h-5 bg-gray-300 border-2 border-gray-400 rounded-full shadow-lg transform -translate-y-1/2 -translate-x-1/2" style={{ left: '0%', top: '50%' }} />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input type="number" value={0} disabled className="w-16 px-2 py-1 text-xs border rounded-md bg-gray-100 text-center font-mono" />
-                    <Badge variant="outline" className="text-xs font-mono text-gray-400 border-gray-300">≥0.0%</Badge>
-                  </div>
-                </div>
-              </div>
-            }
-          >
-            <div className="col-span-4 space-y-3">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                EV Threshold
-              </Label>
-              <div className="space-y-3">
-                <div className="relative w-3/5">
-                  {/* Modern Slider Track */}
-                  <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div
-                      className="absolute h-full bg-gradient-to-r from-[#D8AC35] to-[#F4C842] rounded-full transition-all duration-200 shadow-sm"
-                      style={{ width: `${(evThreshold / 20) * 100}%` }}
-                    />
-                  </div>
-                  <input
-                    type="range"
-                    min={0}
-                    max={20}
-                    step={0.1}
-                    value={evThreshold}
-                    onChange={(e) => setEvThreshold(parseFloat(e.target.value))}
-                    className="absolute top-0 left-0 w-full h-2 opacity-0 cursor-pointer"
-                  />
-                  {/* Custom Knob */}
-                  <div
-                    className="absolute w-5 h-5 bg-white border-2 border-[#D8AC35] rounded-full shadow-lg cursor-pointer transform -translate-y-1/2 -translate-x-1/2 hover:scale-110 transition-transform"
-                    style={{ left: `${(evThreshold / 20) * 100}%`, top: '50%' }}
-                  />
-                </div>
 
-                {/* Value Display and Direct Input */}
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    value={evThreshold}
-                    onChange={(e) => setEvThreshold(Math.max(0, Math.min(20, parseFloat(e.target.value) || 0)))}
-                    className="w-16 px-2 py-1 text-xs border rounded-md bg-background text-center font-mono"
-                    step={0.1}
-                    min={0}
-                    max={20}
-                  />
-                  <Badge variant="outline" className="text-xs font-mono text-[#D8AC35] border-[#D8AC35]/30">
-                    ≥{evThreshold.toFixed(1)}%
-                  </Badge>
-                </div>
-              </div>
-            </div>
-          </FeatureGate>
-          
-          {/* Column 9: Min Data */}
-          <FeatureGate
-            feature="advancedFilters"
-            requiredPlan="pro"
-            showUpgrade={false}
-            fallback={
-              <div className="col-span-1">
-                <div className="space-y-2 opacity-50">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    Min Data <Badge variant="outline" className="ml-1 text-xs">Pro</Badge>
-                  </Label>
-                  <input
-                    type="number"
-                    value={0}
-                    disabled
-                    className="w-full px-2 py-1 text-xs border rounded-md bg-gray-100 text-center font-mono h-10"
-                  />
-                </div>
-              </div>
-            }
-          >
-            <div className="col-span-1">
-              <NumberInput
-                value={minSamples}
-                onChange={setMinSamples}
-                min={0}
-                max={50}
-                label="Min Data"
-              />
-            </div>
-          </FeatureGate>
-          
-          {/* Column 10: Search (expands to fill remaining space) */}
-          <div className="col-span-2 space-y-2">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Search
+          {/* EV Threshold */}
+          <div className="w-64">
+            <Label className="text-xs font-semibold text-muted-foreground mb-2 block">
+              EV Threshold
             </Label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Events, props..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="pl-9 h-10 rounded-xl"
-                style={{ fontFamily: "'Rajdhani', sans-serif" }}
-              />
+            <div className="space-y-2">
+              <div className="relative">
+                <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    className="absolute h-full bg-gradient-to-r from-[#D8AC35] to-[#F4C442] rounded-full transition-all duration-200"
+                    style={{ width: `${(evThreshold / 20) * 100}%` }}
+                  />
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={20}
+                  step={0.1}
+                  value={evThreshold}
+                  onChange={(e) => setEvThreshold(parseFloat(e.target.value))}
+                  className="absolute top-0 left-0 w-full h-2 opacity-0 cursor-pointer"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  value={evThreshold}
+                  onChange={(e) => setEvThreshold(Math.max(0, Math.min(20, parseFloat(e.target.value) || 0)))}
+                  className="w-16 px-2 py-1 text-xs border rounded bg-background text-center font-mono"
+                  step={0.1}
+                />
+                <Badge variant="outline" className="text-xs font-mono text-[#D8AC35] border-[#D8AC35]/30">
+                  ≥{evThreshold.toFixed(1)}%
+                </Badge>
+              </div>
             </div>
-          </div>
-          
-          {/* Column 11-12: Reset (Right aligned) */}
-          <div className="col-span-1 flex justify-end">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={resetAll}
-              className="gap-2 h-10 rounded-xl"
-              style={{ fontFamily: "'Rajdhani', sans-serif" }}
-            >
-              <RotateCcw className="h-4 w-4" />
-              Reset
-            </Button>
           </div>
         </div>
       </div>

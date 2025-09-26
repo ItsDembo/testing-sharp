@@ -18,7 +18,7 @@ export function CategoryTabs({ activeCategory, onCategoryChange, opportunities, 
         const info = BetCategorizer.getCategoryInfo(category);
         const isActive = activeCategory === category;
         const count = stats[category];
-        const isComingSoon = category === 'arbitrage' || category === 'middling';
+        const isComingSoon = false; // All categories are now available
         
         return (
           <button
