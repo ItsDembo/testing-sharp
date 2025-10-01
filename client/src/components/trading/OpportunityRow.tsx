@@ -5,6 +5,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Copy, Star, ExternalLink } from 'lucide-react';
 import { toAmerican, toPercent, toRelTime, fmtMarket, getEVColor } from '@/lib/formatting';
 import { BettingOpportunity } from './OpportunityTable';
+import { getSportsbookHomepage } from '@/shared/lib/sportsbookHomepages';
+import { useBetSlipContext } from '@/contexts/BetSlipContext';
+import { BetSlipData } from '@/components/terminal/EnhancedBetSlip';
 
 interface OpportunityRowProps {
   opportunity: BettingOpportunity;
@@ -13,6 +16,7 @@ interface OpportunityRowProps {
 }
 
 export function OpportunityRow({ opportunity, onClick, isEven = false }: OpportunityRowProps) {
+  const { openBetSlip } = useBetSlipContext();
   
   const handleCopyOdds = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -26,9 +30,27 @@ export function OpportunityRow({ opportunity, onClick, isEven = false }: Opportu
     // TODO: Implement watchlist functionality
   };
 
-  const handleExternalLink = (e: React.MouseEvent, url?: string) => {
+  const handleExternalLink = (e: React.MouseEvent, url?: string, sportsbook?: string) => {
     e.stopPropagation();
-    if (url) {
+    if (sportsbook && opportunity.myPrice) {
+      // Create bet slip data and open bet slip
+      const betData: BetSlipData = {
+        id: `${opportunity.id}-${sportsbook}`,
+        event: opportunity.event,
+        market: opportunity.market,
+        prop: opportunity.prop,
+        playerName: opportunity.playerName,
+        line: opportunity.line,
+        sportsbook: sportsbook,
+        odds: opportunity.myPrice.odds,
+        evPercent: opportunity.ev,
+        winProbability: opportunity.winProbability,
+        sport: opportunity.sport,
+        league: opportunity.league,
+        gameTime: opportunity.gameTime
+      };
+      openBetSlip(betData);
+    } else if (url) {
       window.open(url, '_blank', 'noopener,noreferrer');
     }
   };
@@ -219,7 +241,7 @@ export function OpportunityRow({ opportunity, onClick, isEven = false }: Opportu
               <TooltipTrigger asChild>
                 <div
                   className="inline-flex items-center h-6 px-2 text-xs font-mono bg-muted/30 border border-border/50 rounded cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={(e) => handleExternalLink(e, opportunity.myPrice.url)}
+                  onClick={(e) => handleExternalLink(e, opportunity.myPrice.url, opportunity.myPrice.book)}
                 >
                   <span className="text-muted-foreground text-xs">{opportunity.myPrice.book}</span>
                   <span className="ml-1 font-bold">{toAmerican(opportunity.myPrice.odds)}</span>

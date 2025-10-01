@@ -5,12 +5,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ExternalLink, DollarSign, TrendingUp, BarChart3 } from 'lucide-react';
 import { BettingOpportunity } from './OpportunityTable';
+import { getSportsbookHomepage } from '@/shared/lib/sportsbookHomepages';
+import { useBetSlipContext } from '@/contexts/BetSlipContext';
+import { BetSlipData } from '@/components/terminal/EnhancedBetSlip';
 
 interface RowExpansionProps {
   opportunity: BettingOpportunity;
 }
 
 export function RowExpansion({ opportunity }: RowExpansionProps) {
+  const { openBetSlip } = useBetSlipContext();
+
   const formatOdds = (odds: number) => {
     return odds > 0 ? `+${odds}` : `${odds}`;
   };
@@ -49,7 +54,25 @@ export function RowExpansion({ opportunity }: RowExpansionProps) {
                         variant="ghost"
                         size="sm"
                         className="w-6 h-6 p-0 mt-1"
-                        onClick={() => window.open(opportunity.myPrice.url, '_blank')}
+                        onClick={() => {
+                          // Create bet slip data and open bet slip
+                          const betData: BetSlipData = {
+                            id: `${opportunity.id}-${opportunity.myPrice.book}`,
+                            event: opportunity.event,
+                            market: opportunity.market,
+                            prop: opportunity.prop,
+                            playerName: opportunity.playerName,
+                            line: opportunity.line,
+                            sportsbook: opportunity.myPrice.book,
+                            odds: opportunity.myPrice.odds,
+                            evPercent: opportunity.ev,
+                            winProbability: opportunity.winProbability,
+                            sport: opportunity.sport,
+                            league: opportunity.league,
+                            gameTime: opportunity.gameTime
+                          };
+                          openBetSlip(betData);
+                        }}
                       >
                         <ExternalLink className="h-3 w-3" />
                       </Button>
@@ -101,7 +124,25 @@ export function RowExpansion({ opportunity }: RowExpansionProps) {
                           variant="ghost"
                           size="sm"
                           className="w-6 h-6 p-0 mt-1"
-                          onClick={() => window.open(price.url, '_blank')}
+                          onClick={() => {
+                            // Create bet slip data and open bet slip
+                            const betData: BetSlipData = {
+                              id: `${opportunity.id}-${price.book}`,
+                              event: opportunity.event,
+                              market: opportunity.market,
+                              prop: opportunity.prop,
+                              playerName: opportunity.playerName,
+                              line: opportunity.line,
+                              sportsbook: price.book,
+                              odds: price.odds,
+                              evPercent: opportunity.ev,
+                              winProbability: opportunity.winProbability,
+                              sport: opportunity.sport,
+                              league: opportunity.league,
+                              gameTime: opportunity.gameTime
+                            };
+                            openBetSlip(betData);
+                          }}
                         >
                           <ExternalLink className="h-3 w-3" />
                         </Button>
