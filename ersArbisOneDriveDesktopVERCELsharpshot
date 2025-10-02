@@ -1,0 +1,25 @@
+* [33m20e9099[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m 🎉 PASSWORD RESET SYSTEM FULLY WORKING! + Complete User Authentication Flow
+* [33mf7a6877[m 🚀 MASSIVE UPDATE: User System Working + SendGrid Integration + Clean Database Setup
+* [33m8a0a14d[m EMAIL FUCKING WORKEDgit add .git add . 🚀📧
+* [33m0eb6705[m 🔧 Fix routing logic to handle all auth endpoints properly
+* [33m1124337[m 🔧 Fix import typo in consolidated API
+* [33m03a4f82[m 🗑️ Remove old individual API files to reduce function count
+* [33m6d9ef94[m 🚀 Consolidate all API endpoints into one function + Add SendGrid email support
+* [33mf31764e[m 🗑️ Remove test endpoint to stay under Vercel function limit
+* [33m2297116[m 🧪 Add database insert test to isolate Supabase auth issue
+* [33m3b0fdab[m 🔧 Fix Vercel routing issue for signup endpoint
+* [33m70a3f56[m 🗑️ Remove test endpoint to stay under Vercel function limit
+* [33m801283c[m 🧪 Create test signup endpoint to isolate routing issues
+* [33md20fbf9[m 🗑️ Remove old Express server routes that were conflicting with Vercel functions
+* [33m556e3c5[m 🔍 Add detailed logging to debug endpoint routing
+* [33m8bd8cc7[m 🧪 Add test endpoint to isolate Supabase connection issues
+* [33m010fe79[m 🔍 Add detailed logging to debug signup process
+* [33m4268a0a[m 🔧 Fix database trigger issues and add manual user creation
+* [33m306ecc9[m 🔧 Fix authentication issues and improve user confirmation
+* [33m1883ba1[m 🔧 Fix password reset prompt and add Supabase database setup
+* [33m1d5cdff[m 🔧 Fix Vercel static file serving
+* [33mfc3eb6d[m 🔧 Consolidate Supabase auth functions to reduce Vercel function count
+* [33ma2abfbc[m 🔧 Update frontend auth components to use Supabase
+* [33m5e1df00[m 🔧 Convert to Vercel serverless functions for Supabase auth
+* [33m1614ff3[m 🔧 Fix Supabase client initialization for Vite/React
+* [33m8addc19[m 🔐 Complete Supabase integration with auth system

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizontal Ticker Example</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Ticker Container */
+        .ticker-container {
+            background-color: #000;
+            color: #fff;
+            height: 40px;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            width: 100%;
+            border-bottom: 2px solid #333;
+        }
+
+        /* Ticker Content */
+        .ticker-content {
+            display: inline-block;
+            padding-left: 100%;
+            line-height: 40px;
+            font-size: 14px;
+            animation: scroll-left 30s linear infinite;
+        }
+
+        /* Scroll Animation */
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(0%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Pause on Hover */
+        .ticker-container:hover .ticker-content {
+            animation-play-state: paused;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .score-item {
+            font-weight: bold;
+        }
+
+        .live {
+            color: #ff4444;
+        }
+
+        .final {
+            color: #4444ff;
+        }
+
+        .upcoming {
+            color: #44ff44;
+        }
+    </style>
+</head>
+<body>
+    <!-- Horizontal Ticker at Top -->
+    <div class="ticker-container">
+        <div class="ticker-content" id="ticker-content">
+            <!-- Dynamic content will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Main Page Content -->
+    <div class="main-content">
+        <h1>Sports Ticker Demo</h1>
+        <p>The ticker above shows live scores and updates in a continuous loop.</p>
+        
+        <h2>Features:</h2>
+        <ul>
+            <li>Smooth right-to-left scrolling animation</li>
+            <li>Infinite seamless loop</li>
+            <li>Pauses on hover</li>
+            <li>No text wrapping</li>
+            <li>Easy to customize</li>
+        </ul>
+
+        <h2>Add Your Own Scores:</h2>
+        <button onclick="addScore()">Add Random Score</button>
+        <button onclick="clearScores()">Clear All</button>
+    </div>
+
+    <script>
+        // Sample score data
+        let scores = [
+            '<span class="score-item live">Lakers 112 - 108 Warriors LIVE</span>',
+            '<span class="score-item final">Celtics 95 - 89 Heat FINAL</span>',
+            '<span class="score-item upcoming">Bulls vs Knicks 7:30 PM</span>',
+            '<span class="score-item final">Nets 102 - 99 76ers FINAL</span>',
+            '<span class="score-item live">Clippers 118 - 115 Suns LIVE</span>'
+        ];
+
+        // Update ticker content
+        function updateTicker() {
+            const tickerContent = document.getElementById('ticker-content');
+            const separator = ' • ';
+            
+            // Create repeating content for seamless loop
+            const content = scores.join(separator);
+            const repeatedContent = Array(5).fill(content).join(separator);
+            
+            tickerContent.innerHTML = repeatedContent;
+        }
+
+        // Add a random score
+        function addScore() {
+            const teams = ['Lakers', 'Warriors', 'Celtics', 'Heat', 'Bulls', 'Knicks', 'Nets', '76ers'];
+            const team1 = teams[Math.floor(Math.random() * teams.length)];
+            const team2 = teams[Math.floor(Math.random() * teams.length)];
+            const score1 = Math.floor(Math.random() * 50) + 80;
+            const score2 = Math.floor(Math.random() * 50) + 80;
+            
+            const statuses = ['LIVE', 'FINAL', '8:00 PM'];
+            const status = statuses[Math.floor(Math.random() * statuses.length)];
+            const statusClass = status === 'LIVE' ? 'live' : status === 'FINAL' ? 'final' : 'upcoming';
+            
+            const newScore = `<span class="score-item ${statusClass}">${team1} ${score1} - ${score2} ${team2} ${status}</span>`;
+            scores.push(newScore);
+            
+            updateTicker();
+        }
+
+        // Clear all scores
+        function clearScores() {
+            scores = [];
+            updateTicker();
+        }
+
+        // Initialize ticker on page load
+        updateTicker();
+    </script>
+</body>
+</html>
