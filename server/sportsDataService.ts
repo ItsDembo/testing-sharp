@@ -1,7 +1,7 @@
 import type { Game, Event, Asset, Team, Odds } from '@shared/schema';
 
-const API_BASE_URL = 'https://sharpshot.api.areyouwatchingthis.com/api';
-const API_KEY = '3e8b23fdd1b6030714b9320484d7367b';
+export const API_BASE_URL = 'https://sharpshot.api.areyouwatchingthis.com/api';
+export const API_KEY = '3e8b23fdd1b6030714b9320484d7367b';
 
 export class SportsDataService {
   private async makeApiCall(endpoint: string, params: Record<string, string | number> = {}): Promise<any> {
